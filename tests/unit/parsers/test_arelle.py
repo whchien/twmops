@@ -1,4 +1,5 @@
 """Tests for Arelle-based XBRL extraction."""
+
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 

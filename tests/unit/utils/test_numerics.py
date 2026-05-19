@@ -1,4 +1,5 @@
 """Tests for twmops.utils.numerics functions."""
+
 import pytest
 from decimal import Decimal
 

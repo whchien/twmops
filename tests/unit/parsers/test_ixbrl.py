@@ -1,4 +1,5 @@
 """Tests for iXBRL HTML parsing."""
+
 import pytest
 from unittest.mock import Mock, patch
 
@@ -31,11 +32,14 @@ class TestSchemaRefReplacement:
         result = replace_schema_refs(html, mappings)
         assert isinstance(result, str)
 
-    @pytest.mark.parametrize("mapping_type", [
-        {},
-        {"schema1": "path/to/schema1"},
-        {"schema1": "path/to/schema1", "schema2": "path/to/schema2"},
-    ])
+    @pytest.mark.parametrize(
+        "mapping_type",
+        [
+            {},
+            {"schema1": "path/to/schema1"},
+            {"schema1": "path/to/schema1", "schema2": "path/to/schema2"},
+        ],
+    )
     def test_replace_with_different_mappings(self, mapping_type):
         """Test replacement with different mapping configurations."""
         html = "<html></html>"

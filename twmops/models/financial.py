@@ -4,7 +4,7 @@ Financial statement data models
 
 from typing import List, Optional
 from decimal import Decimal
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field
 
 
 class FinancialItem(BaseModel):

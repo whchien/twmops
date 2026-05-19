@@ -1,4 +1,5 @@
 """Tests for DividendFetcher."""
+
 import pytest
 import pandas as pd
 from unittest.mock import Mock, AsyncMock
@@ -15,7 +16,7 @@ class TestDividendFetcher:
         """Test DividendFetcher can be instantiated."""
         fetcher = DividendFetcher()
         assert fetcher is not None
-        assert hasattr(fetcher, 'client')
+        assert hasattr(fetcher, "client")
 
     def test_fetcher_has_required_methods(self):
         """Test that fetcher has required methods."""
@@ -30,11 +31,14 @@ class TestDividendFetcher:
         fetcher = DividendFetcher(html_client=mock_client)
         assert fetcher.client == mock_client
 
-    @pytest.mark.parametrize("stock_id,year", [
-        ("2330", 113),
-        ("2412", 112),
-        ("0050", 111),
-    ])
+    @pytest.mark.parametrize(
+        "stock_id,year",
+        [
+            ("2330", 113),
+            ("2412", 112),
+            ("0050", 111),
+        ],
+    )
     def test_fetcher_accepts_valid_parameters(self, stock_id, year):
         """Test that fetcher accepts valid parameters."""
         fetcher = DividendFetcher()
@@ -70,12 +74,15 @@ class TestDividendParsing:
         assert fetcher._extract_year("N/A") is None
         assert fetcher._extract_year("") is None
 
-    @pytest.mark.parametrize("text,expected", [
-        ("期間:01/01-03/31", 1),
-        ("期間:04/01-06/30", 2),
-        ("期間:07/01-09/30", 3),
-        ("期間:10/01-12/31", 4),
-    ])
+    @pytest.mark.parametrize(
+        "text,expected",
+        [
+            ("期間:01/01-03/31", 1),
+            ("期間:04/01-06/30", 2),
+            ("期間:07/01-09/30", 3),
+            ("期間:10/01-12/31", 4),
+        ],
+    )
     def test_extract_quarter(self, text, expected):
         """Test extracting quarter from date range."""
         fetcher = DividendFetcher()
@@ -89,10 +96,22 @@ class TestDividendParsing:
     def test_parse_dividend_records_basic(self):
         """Test parsing dividend records from DataFrame."""
         fetcher = DividendFetcher()
-        df = pd.DataFrame([
-            ["股利所屬期間", "普通股", "持股者", "", "", "", "現金股利", "股票股利"],
-            ["2024-01-01至03-31", "113年", "", "", "", "", "2.00", "1.50"],
-        ], columns=[0, 1, 2, 3, 4, 5, 6, 7])
+        df = pd.DataFrame(
+            [
+                [
+                    "股利所屬期間",
+                    "普通股",
+                    "持股者",
+                    "",
+                    "",
+                    "",
+                    "現金股利",
+                    "股票股利",
+                ],
+                ["2024-01-01至03-31", "113年", "", "", "", "", "2.00", "1.50"],
+            ],
+            columns=[0, 1, 2, 3, 4, 5, 6, 7],
+        )
 
         records = fetcher._parse_dividend_records([df], "2330", "台積電")
         assert len(records) > 0
@@ -103,10 +122,22 @@ class TestDividendParsing:
     def test_parse_dividend_records_skips_headers(self):
         """Test that header rows are skipped."""
         fetcher = DividendFetcher()
-        df = pd.DataFrame([
-            ["股利所屬期間", "普通股", "持股者", "", "", "", "現金股利", "股票股利"],
-            ["期間", "年度", "類別", "", "", "", "金額", "數量"],
-        ], columns=[0, 1, 2, 3, 4, 5, 6, 7])
+        df = pd.DataFrame(
+            [
+                [
+                    "股利所屬期間",
+                    "普通股",
+                    "持股者",
+                    "",
+                    "",
+                    "",
+                    "現金股利",
+                    "股票股利",
+                ],
+                ["期間", "年度", "類別", "", "", "", "金額", "數量"],
+            ],
+            columns=[0, 1, 2, 3, 4, 5, 6, 7],
+        )
 
         records = fetcher._parse_dividend_records([df], "2330", "台積電")
         assert records == []
@@ -116,7 +147,9 @@ class TestDividendParsing:
         fetcher = DividendFetcher()
         mock_client = Mock()
         fetcher.client = mock_client
-        mock_client.fetch_html_table.return_value = [pd.DataFrame([["2330 台積電"]], columns=[0])]
+        mock_client.fetch_html_table.return_value = [
+            pd.DataFrame([["2330 台積電"]], columns=[0])
+        ]
 
         fetcher.get_dividends("2330", year_start=113)
         call_args = mock_client.fetch_html_table.call_args[0][1]
@@ -161,12 +194,18 @@ class TestDividendEndToEnd:
 
         # Mock a response with 2 dividend records matching parser expectations
         # Parser skips rows where first col contains "股利"/"期間" or is empty
-        df = pd.DataFrame([
-            ["股利所屬期間", "113年", "現金股利", "", "", "", "2.00", "1.50"],
-            ["普通股", "113年第1季", "01/01-03/31", "", "", "", "2.00", "1.50"],
-            ["普通股", "113年第2季", "04/01-06/30", "", "", "", "3.00", "0.50"],
-        ], columns=[0, 1, 2, 3, 4, 5, 6, 7])
-        mock_client.fetch_html_table.return_value = [pd.DataFrame([["2330 台積電"]], columns=[0]), df]
+        df = pd.DataFrame(
+            [
+                ["股利所屬期間", "113年", "現金股利", "", "", "", "2.00", "1.50"],
+                ["普通股", "113年第1季", "01/01-03/31", "", "", "", "2.00", "1.50"],
+                ["普通股", "113年第2季", "04/01-06/30", "", "", "", "3.00", "0.50"],
+            ],
+            columns=[0, 1, 2, 3, 4, 5, 6, 7],
+        )
+        mock_client.fetch_html_table.return_value = [
+            pd.DataFrame([["2330 台積電"]], columns=[0]),
+            df,
+        ]
 
         summary = fetcher.get_annual_summary("2330", year=113)
         assert summary.stock_id == "2330"

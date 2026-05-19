@@ -7,7 +7,7 @@ import io
 import logging
 import tempfile
 import os
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 from pathlib import Path
 
 from lxml import etree
@@ -15,8 +15,6 @@ from platformdirs import user_cache_dir
 
 from twmops.models.xbrl import (
     XBRLPackage,
-    CalculationArc,
-    PresentationArc,
     XBRLFact,
     XBRLContext,
 )
@@ -159,8 +157,6 @@ class XBRLParser:
             parser = etree.HTMLParser(encoding="utf-8")
             tree = etree.parse(io.BytesIO(ixbrl_content), parser)
             root = tree.getroot()
-
-            ix_ns = "http://www.xbrl.org/2013/inlineXBRL"
 
             facts = []
             for elem in root.iter():

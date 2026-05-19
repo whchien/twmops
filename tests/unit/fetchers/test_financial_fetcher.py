@@ -1,4 +1,5 @@
 """Tests for FinancialFetcher."""
+
 import pytest
 from unittest.mock import Mock, patch, AsyncMock
 from decimal import Decimal
@@ -32,11 +33,13 @@ class TestFinancialFetcher:
         )
         mock_xbrl_parser.parse.return_value = mock_package
 
-        fetcher = FinancialFetcher(xbrl_client=mock_xbrl_client, xbrl_parser=mock_xbrl_parser)
+        fetcher = FinancialFetcher(
+            xbrl_client=mock_xbrl_client, xbrl_parser=mock_xbrl_parser
+        )
 
         # Note: The actual fetcher builds statements from the package,
         # which requires more setup. This tests the basic flow.
-        with patch.object(fetcher, '_build_statement') as mock_build:
+        with patch.object(fetcher, "_build_statement") as mock_build:
             mock_statement = FinancialStatement(
                 stock_id="2330",
                 year=113,
@@ -73,9 +76,11 @@ class TestFinancialFetcher:
         )
         mock_xbrl_parser.parse.return_value = mock_package
 
-        fetcher = FinancialFetcher(xbrl_client=mock_xbrl_client, xbrl_parser=mock_xbrl_parser)
+        fetcher = FinancialFetcher(
+            xbrl_client=mock_xbrl_client, xbrl_parser=mock_xbrl_parser
+        )
 
-        with patch.object(fetcher, '_build_statement') as mock_build:
+        with patch.object(fetcher, "_build_statement") as mock_build:
             mock_statement = FinancialStatement(
                 stock_id="2330",
                 year=113,
@@ -85,7 +90,9 @@ class TestFinancialFetcher:
             )
             mock_build.return_value = mock_statement
 
-            stmt = await fetcher.get_financial_statement_async("2330", year=113, quarter=1)
+            stmt = await fetcher.get_financial_statement_async(
+                "2330", year=113, quarter=1
+            )
 
             assert stmt.stock_id == "2330"
 
@@ -104,11 +111,11 @@ class TestFinancialFetcher:
         fetcher = FinancialFetcher()
 
         # Test that the method exists and is callable
-        assert hasattr(fetcher, 'get_simplified_statement')
+        assert hasattr(fetcher, "get_simplified_statement")
         assert callable(fetcher.get_simplified_statement)
 
         # Test async version also exists
-        assert hasattr(fetcher, 'get_simplified_statement_async')
+        assert hasattr(fetcher, "get_simplified_statement_async")
         assert callable(fetcher.get_simplified_statement_async)
 
     def test_download_error_handling(self):
@@ -119,9 +126,13 @@ class TestFinancialFetcher:
         mock_xbrl_client = Mock()
         mock_xbrl_parser = Mock()
 
-        mock_xbrl_client.download_xbrl.side_effect = MOPSXBRLClientError("Download failed")
+        mock_xbrl_client.download_xbrl.side_effect = MOPSXBRLClientError(
+            "Download failed"
+        )
 
-        fetcher = FinancialFetcher(xbrl_client=mock_xbrl_client, xbrl_parser=mock_xbrl_parser)
+        fetcher = FinancialFetcher(
+            xbrl_client=mock_xbrl_client, xbrl_parser=mock_xbrl_parser
+        )
 
         with pytest.raises(FinancialFetcherError):
             fetcher.get_financial_statement("2330", year=113, quarter=1)
@@ -137,7 +148,9 @@ class TestFinancialFetcher:
         mock_xbrl_client.download_xbrl.return_value = b"fake_xbrl_content"
         mock_xbrl_parser.parse.side_effect = XBRLParserError("Parse failed")
 
-        fetcher = FinancialFetcher(xbrl_client=mock_xbrl_client, xbrl_parser=mock_xbrl_parser)
+        fetcher = FinancialFetcher(
+            xbrl_client=mock_xbrl_client, xbrl_parser=mock_xbrl_parser
+        )
 
         with pytest.raises(FinancialFetcherError):
             fetcher.get_financial_statement("2330", year=113, quarter=1)
@@ -149,17 +162,29 @@ class TestFinancialFetcher:
 
         mock_xbrl_client.download_xbrl.return_value = b"fake_xbrl_content"
         mock_package = XBRLPackage(
-            stock_id="2330", year=113, quarter=1,
-            facts=[], contexts={}, calculation_arcs={}, presentation_arcs={}, labels={},
+            stock_id="2330",
+            year=113,
+            quarter=1,
+            facts=[],
+            contexts={},
+            calculation_arcs={},
+            presentation_arcs={},
+            labels={},
         )
         mock_xbrl_parser.parse.return_value = mock_package
 
-        fetcher = FinancialFetcher(xbrl_client=mock_xbrl_client, xbrl_parser=mock_xbrl_parser)
+        fetcher = FinancialFetcher(
+            xbrl_client=mock_xbrl_client, xbrl_parser=mock_xbrl_parser
+        )
 
         for report_type in ["balance_sheet", "income_statement", "cash_flow"]:
-            with patch.object(fetcher, '_build_statement') as mock_build:
+            with patch.object(fetcher, "_build_statement") as mock_build:
                 mock_build.return_value = FinancialStatement(
-                    stock_id="2330", year=113, quarter=1, report_type=report_type, items=[],
+                    stock_id="2330",
+                    year=113,
+                    quarter=1,
+                    report_type=report_type,
+                    items=[],
                 )
 
                 stmt = fetcher.get_financial_statement(

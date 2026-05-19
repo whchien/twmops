@@ -1,4 +1,5 @@
 """Tests for lxml-based XBRL parsing."""
+
 import pytest
 import io
 from lxml import etree
@@ -88,9 +89,9 @@ class TestLxmlInstanceParser:
         assert isinstance(result, list)
         if result:
             fact = result[0]
-            assert hasattr(fact, 'concept')
-            assert hasattr(fact, 'value')
-            assert hasattr(fact, 'context_ref')
+            assert hasattr(fact, "concept")
+            assert hasattr(fact, "value")
+            assert hasattr(fact, "context_ref")
 
     def test_parse_contexts_returns_correct_fields(self):
         """Test that parsed contexts have correct fields."""
@@ -105,5 +106,5 @@ class TestLxmlInstanceParser:
         assert isinstance(result, dict)
         if result:
             ctx_id, ctx = next(iter(result.items()))
-            assert hasattr(ctx, 'context_id')
+            assert hasattr(ctx, "context_id")
             assert ctx.context_id == ctx_id

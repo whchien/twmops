@@ -7,7 +7,6 @@ For XBRL financial report downloads use MOPSXBRLClient instead.
 import asyncio
 import logging
 import time
-import warnings
 from io import StringIO
 from typing import Optional
 

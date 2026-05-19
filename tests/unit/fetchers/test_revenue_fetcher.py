@@ -1,4 +1,5 @@
 """Tests for RevenueFetcher."""
+
 import pytest
 import respx
 from httpx import Response
@@ -21,17 +22,19 @@ class TestRevenueFetcher:
         fetcher = RevenueFetcher()
         url = "https://mopsov.twse.com.tw/nas/t21/sii/t21sc03_113_3_0.html"
 
-        html_content = build_revenue_html([
-            {
-                "stock_id": "2330",
-                "company_name": "台積電",
-                "revenue": "500000",
-                "revenue_last_month": "480000",
-                "revenue_last_year": "510000",
-                "mom_change": "4.17",
-                "yoy_change": "-1.96",
-            }
-        ])
+        html_content = build_revenue_html(
+            [
+                {
+                    "stock_id": "2330",
+                    "company_name": "台積電",
+                    "revenue": "500000",
+                    "revenue_last_month": "480000",
+                    "revenue_last_year": "510000",
+                    "mom_change": "4.17",
+                    "yoy_change": "-1.96",
+                }
+            ]
+        )
         respx_mock.get(url).mock(return_value=make_response(html_content))
 
         revenues = fetcher.get_market_revenue(year=113, month=3, market="sii")
@@ -46,16 +49,22 @@ class TestRevenueFetcher:
         url = "https://mopsov.twse.com.tw/nas/t21/sii/t21sc03_113_3_0.html"
 
         respx_mock.get(url).mock(
-            return_value=make_response(build_revenue_html([
-                    {
-                        "stock_id": "2330",
-                        "company_name": "台積電",
-                        "revenue": "500000",
-                    }
-                ]))
+            return_value=make_response(
+                build_revenue_html(
+                    [
+                        {
+                            "stock_id": "2330",
+                            "company_name": "台積電",
+                            "revenue": "500000",
+                        }
+                    ]
+                )
+            )
         )
 
-        revenues = await fetcher.get_market_revenue_async(year=113, month=3, market="sii")
+        revenues = await fetcher.get_market_revenue_async(
+            year=113, month=3, market="sii"
+        )
         assert len(revenues) > 0
         assert revenues[0].stock_id == "2330"
 
@@ -65,18 +74,22 @@ class TestRevenueFetcher:
         url = "https://mopsov.twse.com.tw/nas/t21/sii/t21sc03_113_3_0.html"
 
         respx_mock.get(url).mock(
-            return_value=make_response(build_revenue_html([
-                    {
-                        "stock_id": "2330",
-                        "company_name": "台積電",
-                        "revenue": "500000",
-                    },
-                    {
-                        "stock_id": "2454",
-                        "company_name": "聯發科",
-                        "revenue": "300000",
-                    },
-                ]))
+            return_value=make_response(
+                build_revenue_html(
+                    [
+                        {
+                            "stock_id": "2330",
+                            "company_name": "台積電",
+                            "revenue": "500000",
+                        },
+                        {
+                            "stock_id": "2454",
+                            "company_name": "聯發科",
+                            "revenue": "300000",
+                        },
+                    ]
+                )
+            )
         )
 
         rev = fetcher.get_single_revenue("2330", year=113, month=3, market="sii")
@@ -90,13 +103,17 @@ class TestRevenueFetcher:
         url = "https://mopsov.twse.com.tw/nas/t21/sii/t21sc03_113_3_0.html"
 
         respx_mock.get(url).mock(
-            return_value=make_response(build_revenue_html([
-                    {
-                        "stock_id": "2330",
-                        "company_name": "台積電",
-                        "revenue": "500000",
-                    }
-                ]))
+            return_value=make_response(
+                build_revenue_html(
+                    [
+                        {
+                            "stock_id": "2330",
+                            "company_name": "台積電",
+                            "revenue": "500000",
+                        }
+                    ]
+                )
+            )
         )
 
         rev = fetcher.get_single_revenue("9999", year=113, month=3, market="sii")
@@ -127,7 +144,10 @@ class TestRevenueFetcher:
         for market in ["sii", "otc", "rotc", "pub"]:
             url = f"https://mopsov.twse.com.tw/nas/t21/{market}/t21sc03_113_3_0.html"
             respx_mock.get(url).mock(
-                return_value=make_response(build_revenue_html([{"stock_id": "2330", "company_name": "台積電"}])))
+                return_value=make_response(
+                    build_revenue_html([{"stock_id": "2330", "company_name": "台積電"}])
+                )
+            )
             revenues = fetcher.get_market_revenue(year=113, month=3, market=market)
             assert len(revenues) > 0
 
@@ -137,11 +157,27 @@ class TestRevenueFetcher:
         url = "https://mopsov.twse.com.tw/nas/t21/sii/t21sc03_113_3_0.html"
 
         respx_mock.get(url).mock(
-            return_value=make_response(build_revenue_html([
-                    {"stock_id": "2330", "company_name": "台積電", "revenue": "500000"},
-                    {"stock_id": "2454", "company_name": "聯發科", "revenue": "300000"},
-                    {"stock_id": "2317", "company_name": "鴻海", "revenue": "400000"},
-                ]))
+            return_value=make_response(
+                build_revenue_html(
+                    [
+                        {
+                            "stock_id": "2330",
+                            "company_name": "台積電",
+                            "revenue": "500000",
+                        },
+                        {
+                            "stock_id": "2454",
+                            "company_name": "聯發科",
+                            "revenue": "300000",
+                        },
+                        {
+                            "stock_id": "2317",
+                            "company_name": "鴻海",
+                            "revenue": "400000",
+                        },
+                    ]
+                )
+            )
         )
 
         revenues = fetcher.get_market_revenue(year=113, month=3, market="sii")

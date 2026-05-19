@@ -1,9 +1,13 @@
 """Tests for InsidersFetcher."""
+
 import pytest
 import pandas as pd
 from unittest.mock import Mock, AsyncMock
 from twmops.fetchers.insiders import (
-    InsidersFetcher, InsidersFetcherError, SharePledging, PledgingSummary
+    InsidersFetcher,
+    InsidersFetcherError,
+    SharePledging,
+    PledgingSummary,
 )
 from twmops.clients.html_client import MOPSDataNotFoundError, MOPSHTMLClientError
 
@@ -17,7 +21,7 @@ class TestInsidersFetcher:
         """Test InsidersFetcher can be instantiated."""
         fetcher = InsidersFetcher()
         assert fetcher is not None
-        assert hasattr(fetcher, 'client')
+        assert hasattr(fetcher, "client")
 
     def test_fetcher_has_required_methods(self):
         """Test that fetcher has required methods."""
@@ -31,11 +35,14 @@ class TestInsidersFetcher:
         fetcher = InsidersFetcher(html_client=mock_client)
         assert fetcher.client == mock_client
 
-    @pytest.mark.parametrize("stock_id,market", [
-        ("2330", "sii"),
-        ("2412", "sii"),
-        ("8086", "otc"),
-    ])
+    @pytest.mark.parametrize(
+        "stock_id,market",
+        [
+            ("2330", "sii"),
+            ("2412", "sii"),
+            ("8086", "otc"),
+        ],
+    )
     def test_fetcher_accepts_valid_parameters(self, stock_id, market):
         """Test that fetcher accepts valid parameters."""
         fetcher = InsidersFetcher()
@@ -123,11 +130,14 @@ class TestInsidersParseDetails:
     def test_parse_pledging_details_basic(self):
         """Test parsing basic pledging detail records."""
         fetcher = InsidersFetcher()
-        df = pd.DataFrame([
-            ["職稱", "姓名", "當選持股", "目前持股", "持股設質", "設質比例"],
-            ["董事", "張三", "100000", "95000", "10000", "10.5%"],
-            ["監察人", "李四", "50000", "48000", "5000", "10.4%"],
-        ], columns=list(range(6)))
+        df = pd.DataFrame(
+            [
+                ["職稱", "姓名", "當選持股", "目前持股", "持股設質", "設質比例"],
+                ["董事", "張三", "100000", "95000", "10000", "10.5%"],
+                ["監察人", "李四", "50000", "48000", "5000", "10.4%"],
+            ],
+            columns=list(range(6)),
+        )
 
         results = fetcher._parse_pledging_details([df], "2330", "台積電", 113, 3)
         assert len(results) == 2
@@ -138,11 +148,14 @@ class TestInsidersParseDetails:
     def test_parse_pledging_details_spouse(self):
         """Test parsing pledging details with spouse relationship."""
         fetcher = InsidersFetcher()
-        df = pd.DataFrame([
-            ["職稱", "姓名", "當選持股", "目前持股", "持股設質", "設質比例"],
-            ["董事配偶", "王五", "50000", "45000", "5000", "10.0%"],
-            ["監察人", "陳六", "30000", "28000", "3000", "10.7%"],
-        ], columns=list(range(6)))
+        df = pd.DataFrame(
+            [
+                ["職稱", "姓名", "當選持股", "目前持股", "持股設質", "設質比例"],
+                ["董事配偶", "王五", "50000", "45000", "5000", "10.0%"],
+                ["監察人", "陳六", "30000", "28000", "3000", "10.7%"],
+            ],
+            columns=list(range(6)),
+        )
 
         results = fetcher._parse_pledging_details([df], "2330", "台積電", 113, 3)
         assert len(results) == 2
@@ -152,10 +165,13 @@ class TestInsidersParseDetails:
     def test_parse_pledging_details_skips_headers(self):
         """Test that header rows are skipped."""
         fetcher = InsidersFetcher()
-        df = pd.DataFrame([
-            ["職稱", "姓名", "當選持股", "目前持股", "持股設質", "設質比例"],
-            ["", "", "", "", "", ""],
-        ], columns=list(range(6)))
+        df = pd.DataFrame(
+            [
+                ["職稱", "姓名", "當選持股", "目前持股", "持股設質", "設質比例"],
+                ["", "", "", "", "", ""],
+            ],
+            columns=list(range(6)),
+        )
 
         results = fetcher._parse_pledging_details([df], "2330", "台積電", 113, 3)
         assert results == []
@@ -167,17 +183,20 @@ class TestInsidersParseSummary:
     def test_parse_pledging_summary(self):
         """Test parsing pledging summary."""
         fetcher = InsidersFetcher()
-        df = pd.DataFrame([
-            ["非獨立董事持股合計", "1000000"],
-            ["非獨立董事持股設質合計", "100000"],
-            ["非獨立董事持股設質比例", "10.0%"],
-            ["獨立董事持股合計", "500000"],
-            ["獨立董事持股設質合計", "50000"],
-            ["獨立董事持股設質比例", "10.0%"],
-            ["全體董監持股合計", "1500000"],
-            ["全體董監持股設質合計", "150000"],
-            ["全體董監持股設質比例", "10.0%"],
-        ], columns=[0, 1])
+        df = pd.DataFrame(
+            [
+                ["非獨立董事持股合計", "1000000"],
+                ["非獨立董事持股設質合計", "100000"],
+                ["非獨立董事持股設質比例", "10.0%"],
+                ["獨立董事持股合計", "500000"],
+                ["獨立董事持股設質合計", "50000"],
+                ["獨立董事持股設質比例", "10.0%"],
+                ["全體董監持股合計", "1500000"],
+                ["全體董監持股設質合計", "150000"],
+                ["全體董監持股設質比例", "10.0%"],
+            ],
+            columns=[0, 1],
+        )
 
         result = fetcher._parse_pledging_summary([df], "2330", "台積電", 113, 3)
         assert result is not None

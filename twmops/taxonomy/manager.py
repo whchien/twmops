@@ -14,9 +14,7 @@ Usage:
     mappings = manager.get_schema_mappings()
 """
 
-import asyncio
 import logging
-import os
 import re
 import zipfile
 from dataclasses import dataclass

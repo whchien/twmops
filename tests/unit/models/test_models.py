@@ -1,4 +1,5 @@
 """Tests for twmops model classes."""
+
 import pytest
 from datetime import datetime
 from decimal import Decimal
@@ -190,7 +191,9 @@ class TestDisclosureResponse:
             year=113,
             month=3,
             funds_lending=[
-                FundsLending(entity="Other Company", has_balance=True, current_month=100),
+                FundsLending(
+                    entity="Other Company", has_balance=True, current_month=100
+                ),
             ],
         )
         assert len(resp.funds_lending) == 1

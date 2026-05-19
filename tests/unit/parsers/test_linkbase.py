@@ -1,4 +1,5 @@
 """Tests for XBRL Linkbase parsers."""
+
 import pytest
 import io
 from lxml import etree
@@ -41,11 +42,14 @@ class TestCalculationLinkbaseParser:
         result = parse_calculation_linkbase(xml_with_arcs)
         assert isinstance(result, dict)
 
-    @pytest.mark.parametrize("weight,order", [
-        (1.0, 1.0),
-        (-1.0, 2.0),
-        (0.5, 0.0),
-    ])
+    @pytest.mark.parametrize(
+        "weight,order",
+        [
+            (1.0, 1.0),
+            (-1.0, 2.0),
+            (0.5, 0.0),
+        ],
+    )
     def test_parse_arcs_with_different_weights(self, weight, order):
         """Test parsing arcs with different weight values."""
         xml = f"""<?xml version="1.0"?>
@@ -140,7 +144,7 @@ class TestLabelLinkbaseParser:
           xmlns:xml="http://www.w3.org/XML/1998/namespace">
     <label id="label1" xml:lang="zh-TW" xlink:label="label_zh">資產</label>
     <label id="label2" xml:lang="en" xlink:label="label_en">Assets</label>
-</linkbase>""".encode('utf-8')
+</linkbase>""".encode("utf-8")
         zh_labels, en_labels = parse_label_linkbase(xml)
         assert isinstance(zh_labels, dict)
         assert isinstance(en_labels, dict)

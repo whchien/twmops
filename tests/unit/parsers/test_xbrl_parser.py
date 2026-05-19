@@ -1,4 +1,5 @@
 """Tests for XBRLParser."""
+
 import pytest
 import io
 from unittest.mock import Mock, patch
@@ -21,7 +22,7 @@ class TestXBRLParser:
         """Test XBRLParser can be instantiated."""
         parser = XBRLParser()
         assert parser is not None
-        assert hasattr(parser, 'parse')
+        assert hasattr(parser, "parse")
 
     def test_parser_handles_empty_content(self):
         """Test parser behavior with empty content."""
@@ -53,11 +54,14 @@ class TestXBRLParser:
         # Placeholder for integration test
         assert XBRLPackage is not None
 
-    @pytest.mark.parametrize("stock_id,year,quarter", [
-        ("2330", 113, 1),
-        ("2412", 113, 2),
-        ("0050", 113, 4),
-    ])
+    @pytest.mark.parametrize(
+        "stock_id,year,quarter",
+        [
+            ("2330", 113, 1),
+            ("2412", 113, 2),
+            ("0050", 113, 4),
+        ],
+    )
     def test_parser_accepts_valid_parameters(self, stock_id, year, quarter):
         """Test parser with valid parameters."""
         # Basic parameter validation

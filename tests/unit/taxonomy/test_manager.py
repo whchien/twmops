@@ -1,4 +1,5 @@
 """Tests for TaxonomyManager."""
+
 import pytest
 from unittest.mock import Mock, patch, AsyncMock
 from pathlib import Path
@@ -20,7 +21,7 @@ class TestTaxonomyManagerInitialization:
         """Test manager with default settings."""
         manager = TaxonomyManager()
         assert manager is not None
-        assert hasattr(manager, 'taxonomy_dir')
+        assert hasattr(manager, "taxonomy_dir")
         assert isinstance(manager.taxonomy_dir, Path)
 
     def test_manager_custom_directory(self):
@@ -33,8 +34,8 @@ class TestTaxonomyManagerInitialization:
     def test_manager_has_required_methods(self):
         """Test that manager has required methods."""
         manager = TaxonomyManager()
-        assert hasattr(manager, 'ensure_taxonomies')
-        assert hasattr(manager, 'get_schema_mappings')
+        assert hasattr(manager, "ensure_taxonomies")
+        assert hasattr(manager, "get_schema_mappings")
         assert callable(manager.ensure_taxonomies)
         assert callable(manager.get_schema_mappings)
 
@@ -59,11 +60,14 @@ class TestTaxonomyInfo:
         assert info.taxonomy_type == "tifrs"
         assert info.is_ongoing is True
 
-    @pytest.mark.parametrize("tax_type,is_ongoing", [
-        ("tifrs", True),
-        ("tw-gaap", False),
-        ("tifrs", False),
-    ])
+    @pytest.mark.parametrize(
+        "tax_type,is_ongoing",
+        [
+            ("tifrs", True),
+            ("tw-gaap", False),
+            ("tifrs", False),
+        ],
+    )
     def test_taxonomy_info_with_different_types(self, tax_type, is_ongoing):
         """Test TaxonomyInfo with different taxonomy types."""
         info = TaxonomyInfo(
@@ -125,12 +129,15 @@ class TestTaxonomyManagerErrorHandling:
             mappings = manager.get_schema_mappings()
             assert isinstance(mappings, dict)
 
-    @pytest.mark.parametrize("invalid_input", [
-        {},
-        None,
-        "",
-        0,
-    ])
+    @pytest.mark.parametrize(
+        "invalid_input",
+        [
+            {},
+            None,
+            "",
+            0,
+        ],
+    )
     def test_manager_initialization_robustness(self, invalid_input):
         """Test manager initialization with various inputs."""
         if invalid_input is None or isinstance(invalid_input, (str, int)):

@@ -1,4 +1,5 @@
 """Tests for DisclosureFetcher."""
+
 import pytest
 import pandas as pd
 from unittest.mock import Mock, AsyncMock, patch
@@ -17,9 +18,9 @@ class TestDisclosureFetcher:
         """Test DisclosureFetcher can be instantiated."""
         fetcher = DisclosureFetcher()
         assert fetcher is not None
-        assert hasattr(fetcher, 'client')
-        assert hasattr(fetcher, 'get_disclosure')
-        assert hasattr(fetcher, 'get_disclosure_async')
+        assert hasattr(fetcher, "client")
+        assert hasattr(fetcher, "get_disclosure")
+        assert hasattr(fetcher, "get_disclosure_async")
 
     def test_fetcher_has_methods(self):
         """Test that fetcher has required methods."""
@@ -33,11 +34,14 @@ class TestDisclosureFetcher:
         fetcher = DisclosureFetcher(html_client=mock_client)
         assert fetcher.client == mock_client
 
-    @pytest.mark.parametrize("stock_id,year,month,market", [
-        ("2330", 113, 1, "sii"),
-        ("2330", 113, 6, "otc"),
-        ("2412", 112, 12, "sii"),
-    ])
+    @pytest.mark.parametrize(
+        "stock_id,year,month,market",
+        [
+            ("2330", 113, 1, "sii"),
+            ("2330", 113, 6, "otc"),
+            ("2412", 112, 12, "sii"),
+        ],
+    )
     def test_fetcher_accepts_valid_parameters(self, stock_id, year, month, market):
         """Test that fetcher accepts valid parameters."""
         fetcher = DisclosureFetcher()
@@ -67,10 +71,13 @@ class TestDisclosureParsing:
     def test_parse_funds_lending_with_balance(self):
         """Test parsing funds lending data."""
         fetcher = DisclosureFetcher()
-        df = pd.DataFrame([
-            ["本公司 資金貸放餘額有", "1000", "950", "5000"],
-            ["子公司 資金貸放餘額有", "500", "480", "2000"],
-        ], columns=["description", "current", "previous", "limit"])
+        df = pd.DataFrame(
+            [
+                ["本公司 資金貸放餘額有", "1000", "950", "5000"],
+                ["子公司 資金貸放餘額有", "500", "480", "2000"],
+            ],
+            columns=["description", "current", "previous", "limit"],
+        )
 
         results = fetcher._parse_funds_lending([df])
         assert len(results) == 2
@@ -90,9 +97,12 @@ class TestDisclosureParsing:
     def test_parse_endorsement(self):
         """Test parsing endorsement/guarantee data."""
         fetcher = DisclosureFetcher()
-        df = pd.DataFrame([
-            ["本公司  背書保證資訊有", "100", "2000", "10000"],
-        ], columns=["description", "monthly", "accumulated", "limit"])
+        df = pd.DataFrame(
+            [
+                ["本公司  背書保證資訊有", "100", "2000", "10000"],
+            ],
+            columns=["description", "monthly", "accumulated", "limit"],
+        )
 
         results = fetcher._parse_endorsement([df])
         assert len(results) == 1
@@ -103,11 +113,14 @@ class TestDisclosureParsing:
     def test_parse_cross_company(self):
         """Test parsing cross-company guarantee data."""
         fetcher = DisclosureFetcher()
-        df = pd.DataFrame([
-            ["本公司與子公司間 背書保證資訊", ""],
-            ["本公司對子公司", "5000"],
-            ["子公司對本公司", "2000"],
-        ], columns=["description", "amount"])
+        df = pd.DataFrame(
+            [
+                ["本公司與子公司間 背書保證資訊", ""],
+                ["本公司對子公司", "5000"],
+                ["子公司對本公司", "2000"],
+            ],
+            columns=["description", "amount"],
+        )
 
         result = fetcher._parse_cross_company([df])
         assert result is not None
@@ -125,9 +138,12 @@ class TestDisclosureParsing:
     def test_parse_china_guarantee(self):
         """Test parsing China guarantee data."""
         fetcher = DisclosureFetcher()
-        df = pd.DataFrame([
-            ["本公司 對大陸地區 背書保證資訊有", "500", "3000"],
-        ], columns=["description", "monthly", "accumulated"])
+        df = pd.DataFrame(
+            [
+                ["本公司 對大陸地區 背書保證資訊有", "500", "3000"],
+            ],
+            columns=["description", "monthly", "accumulated"],
+        )
 
         results = fetcher._parse_china_guarantee([df])
         assert len(results) == 1
@@ -142,10 +158,13 @@ class TestDisclosureParsing:
 
         # Mock DataFrame response
         dfs = [
-            pd.DataFrame([
-                ["2330 台積電"],
-                ["本公司 資金貸放餘額有", "1000", "950", "5000"],
-            ], columns=["col1", "col2", "col3", "col4"])
+            pd.DataFrame(
+                [
+                    ["2330 台積電"],
+                    ["本公司 資金貸放餘額有", "1000", "950", "5000"],
+                ],
+                columns=["col1", "col2", "col3", "col4"],
+            )
         ]
         mock_client.fetch_html_table.return_value = dfs
 

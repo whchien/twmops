@@ -1,4 +1,5 @@
 """Tests for MOPSHTMLClient."""
+
 import pytest
 from unittest.mock import Mock, patch, AsyncMock
 import respx
@@ -16,17 +17,17 @@ class TestMOPSHTMLClient:
         """Test that client can be instantiated."""
         client = MOPSHTMLClient()
         assert client is not None
-        assert hasattr(client, 'fetch_html_table')
-        assert hasattr(client, 'fetch_static_html')
+        assert hasattr(client, "fetch_html_table")
+        assert hasattr(client, "fetch_static_html")
 
     def test_client_has_timeout_config(self):
         """Test that client has timeout settings."""
         client = MOPSHTMLClient()
         assert client is not None
-        assert hasattr(client, 'timeout')
+        assert hasattr(client, "timeout")
         assert client.timeout == 30.0
 
-    @pytest.mark.parametrize("method_name", ['fetch_html_table', 'fetch_static_html'])
+    @pytest.mark.parametrize("method_name", ["fetch_html_table", "fetch_static_html"])
     def test_client_has_methods(self, method_name):
         """Test client has required methods."""
         client = MOPSHTMLClient()
@@ -37,8 +38,8 @@ class TestMOPSHTMLClient:
     async def test_async_methods_exist(self):
         """Test that async methods exist on client."""
         client = MOPSHTMLClient()
-        assert hasattr(client, 'fetch_html_table_async')
-        assert hasattr(client, 'fetch_static_html_async')
+        assert hasattr(client, "fetch_html_table_async")
+        assert hasattr(client, "fetch_static_html_async")
         assert callable(client.fetch_html_table_async)
         assert callable(client.fetch_static_html_async)
 
