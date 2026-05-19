@@ -1,0 +1,50 @@
+[project]
+name = "twmops"
+version = "0.1.0"
+description = "Python client for Taiwan MOPS (公開資訊觀測站) financial data"
+readme = "README.md"
+authors = [{name = "Will Chien", email = "locriginal@gmail.com"}]
+license = {text = "MIT"}
+keywords = ["taiwan", "mops", "financial", "twse", "xbrl"]
+requires-python = ">=3.10"
+dependencies = [
+    "httpx>=0.28.1",
+    "certifi>=2024.0.0",
+    "lxml[html_clean]>=5.0.0",
+    "pydantic>=2.0.0",
+    "beautifulsoup4>=4.14.3",
+    "pandas>=2.2.0",
+    "platformdirs>=4.0.0",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Topic :: Office/Business :: Financial",
+]
+
+[project.urls]
+Homepage = "https://github.com/willchien/tw-mops"
+Repository = "https://github.com/willchien/tw-mops.git"
+Issues = "https://github.com/willchien/tw-mops/issues"
+Changelog = "https://github.com/willchien/tw-mops/releases"
+
+[project.optional-dependencies]
+xbrl = ["arelle-release>=2.0.0"]
+pandas = ["html5lib>=1.1"]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.23", "respx>=0.21"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+[tool.hatch.build.targets.wheel]
+packages = ["twmops"]
