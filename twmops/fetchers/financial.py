@@ -2,12 +2,16 @@
 FinancialFetcher — downloads XBRL from MOPS and parses into structured financial statements.
 No database dependency; always fetches directly from MOPS.
 """
+
 import logging
 from typing import Optional, List, Dict
 
 from twmops.models.financial import FinancialStatement, FinancialItem
 from twmops.models.xbrl import XBRLPackage, CalculationArc
-from twmops.models.simplified import SimplifiedFinancialStatement, SimplifiedFinancialItem
+from twmops.models.simplified import (
+    SimplifiedFinancialStatement,
+    SimplifiedFinancialItem,
+)
 from twmops.clients.xbrl_client import MOPSXBRLClient, MOPSXBRLClientError
 from twmops.parsers.xbrl_parser import XBRLParser, XBRLParserError
 from twmops.utils.numerics import parse_financial_value
@@ -46,7 +50,9 @@ class FinancialFetcher:
     def _normalize_quarter(self, quarter: Optional[int]) -> int:
         return quarter if quarter else 4
 
-    def _download_and_parse(self, content: bytes, stock_id: str, year: int, quarter: int) -> XBRLPackage:
+    def _download_and_parse(
+        self, content: bytes, stock_id: str, year: int, quarter: int
+    ) -> XBRLPackage:
         try:
             package = self.xbrl_parser.parse(content, stock_id, year, quarter)
         except XBRLParserError as e:
@@ -113,7 +119,9 @@ class FinancialFetcher:
         download_quarter = self._normalize_quarter(quarter)
 
         try:
-            content = await self.mops_client.download_xbrl_async(stock_id, year, download_quarter)
+            content = await self.mops_client.download_xbrl_async(
+                stock_id, year, download_quarter
+            )
         except MOPSXBRLClientError as e:
             raise FinancialFetcherError(f"Failed to download XBRL: {e.message}")
 
@@ -205,13 +213,15 @@ class FinancialFetcher:
             seen_types.add(concept)
             origin_name = package.labels.get(concept, concept)
 
-            simplified_items.append(SimplifiedFinancialItem(
-                date=report_date,
-                stock_id=stock_id,
-                type=concept,
-                value=float(parsed),
-                origin_name=origin_name,
-            ))
+            simplified_items.append(
+                SimplifiedFinancialItem(
+                    date=report_date,
+                    stock_id=stock_id,
+                    type=concept,
+                    value=float(parsed),
+                    origin_name=origin_name,
+                )
+            )
 
         return SimplifiedFinancialStatement(
             stock_id=stock_id,
@@ -222,7 +232,9 @@ class FinancialFetcher:
             items=simplified_items,
         )
 
-    def _build_statement(self, package: XBRLPackage, report_type: str) -> FinancialStatement:
+    def _build_statement(
+        self, package: XBRLPackage, report_type: str
+    ) -> FinancialStatement:
         fact_values = {fact.concept: fact.value for fact in package.facts}
         return self._build_statement_with_facts(package, report_type, fact_values)
 
@@ -282,19 +294,23 @@ class FinancialFetcher:
 
         if parent is None:
             if not presentation_arcs:
-                logger.warning("No presentation arcs found, falling back to flat facts list")
+                logger.warning(
+                    "No presentation arcs found, falling back to flat facts list"
+                )
                 fallback_items = []
                 for concept, value_str in fact_values.items():
                     value = parse_financial_value(value_str)
-                    fallback_items.append(FinancialItem(
-                        account_code=concept,
-                        account_name=labels_zh.get(concept, concept),
-                        account_name_en=labels_en.get(concept),
-                        value=value,
-                        weight=1.0,
-                        level=0,
-                        children=[],
-                    ))
+                    fallback_items.append(
+                        FinancialItem(
+                            account_code=concept,
+                            account_name=labels_zh.get(concept, concept),
+                            account_name_en=labels_en.get(concept),
+                            value=value,
+                            weight=1.0,
+                            level=0,
+                            children=[],
+                        )
+                    )
                 fallback_items.sort(key=lambda x: x.account_code)
                 return fallback_items
 
@@ -305,7 +321,7 @@ class FinancialFetcher:
 
             root_concepts = set(presentation_arcs.keys()) - all_children
             current_arcs = [
-                type('Arc', (), {'to_concept': c, 'order': 0})()
+                type("Arc", (), {"to_concept": c, "order": 0})()
                 for c in sorted(root_concepts)
             ]
         else:
@@ -334,15 +350,17 @@ class FinancialFetcher:
                 max_depth=max_depth,
             )
 
-            items.append(FinancialItem(
-                account_code=concept,
-                account_name=labels_zh.get(concept, concept),
-                account_name_en=labels_en.get(concept),
-                value=value,
-                weight=weight,
-                level=level,
-                children=children,
-            ))
+            items.append(
+                FinancialItem(
+                    account_code=concept,
+                    account_name=labels_zh.get(concept, concept),
+                    account_name_en=labels_en.get(concept),
+                    value=value,
+                    weight=weight,
+                    level=level,
+                    children=children,
+                )
+            )
 
         return items
 

@@ -3,6 +3,7 @@ MOPS HTML Client — fetches and parses HTML tables from TWSE MOPS.
 Used for revenue, share pledging, dividends, and disclosure data.
 For XBRL financial report downloads use MOPSXBRLClient instead.
 """
+
 import asyncio
 import logging
 import time
@@ -54,9 +55,7 @@ class MOPSHTMLClient:
 
     MOPS_BASE = "https://mopsov.twse.com.tw"
     MOPS_AJAX_BASE = f"{MOPS_BASE}/mops/web"
-    REVENUE_URL_PATTERN = (
-        f"{MOPS_BASE}/nas/t21/{{market}}/t21sc03_{{year}}_{{month}}_{{company_type}}.html"
-    )
+    REVENUE_URL_PATTERN = f"{MOPS_BASE}/nas/t21/{{market}}/t21sc03_{{year}}_{{month}}_{{company_type}}.html"
 
     DEFAULT_HEADERS = {
         "User-Agent": (
@@ -142,12 +141,18 @@ class MOPSHTMLClient:
                     verify=verify_ssl,
                 ) as client:
                     if method.upper() == "POST":
-                        resp = client.post(url, data=params, headers=self._get_headers(url))
+                        resp = client.post(
+                            url, data=params, headers=self._get_headers(url)
+                        )
                     else:
-                        resp = client.get(url, params=params, headers=self._get_headers(url))
+                        resp = client.get(
+                            url, params=params, headers=self._get_headers(url)
+                        )
 
                     if resp.status_code != 200:
-                        raise MOPSHTMLClientError(f"HTTP {resp.status_code}", resp.status_code)
+                        raise MOPSHTMLClientError(
+                            f"HTTP {resp.status_code}", resp.status_code
+                        )
 
                     resp.encoding = encoding
                     html_content = resp.text
@@ -165,15 +170,21 @@ class MOPSHTMLClient:
 
             except httpx.ConnectError as e:
                 if "SSL" in str(e) or "CERTIFICATE" in str(e):
-                    logger.debug(f"SSL error attempt {attempt + 1}/{self.max_retries}: {e}")
+                    logger.debug(
+                        f"SSL error attempt {attempt + 1}/{self.max_retries}: {e}"
+                    )
                     if attempt < self.max_retries - 1:
                         time.sleep(0.5 * (attempt + 1))
                         continue
-                    raise MOPSHTMLClientError(f"SSL verification failed after retries: {e}")
+                    raise MOPSHTMLClientError(
+                        f"SSL verification failed after retries: {e}"
+                    )
                 raise MOPSHTMLClientError(f"Connection error: {e}")
 
             except httpx.TimeoutException:
-                logger.warning(f"Timeout attempt {attempt + 1}/{self.max_retries} for {endpoint}")
+                logger.warning(
+                    f"Timeout attempt {attempt + 1}/{self.max_retries} for {endpoint}"
+                )
                 if attempt == self.max_retries - 1:
                     raise MOPSHTMLClientError("Request timeout after retries")
                 time.sleep(1 * (attempt + 1))
@@ -227,12 +238,18 @@ class MOPSHTMLClient:
                     verify=verify_ssl,
                 ) as client:
                     if method.upper() == "POST":
-                        resp = await client.post(url, data=params, headers=self._get_headers(url))
+                        resp = await client.post(
+                            url, data=params, headers=self._get_headers(url)
+                        )
                     else:
-                        resp = await client.get(url, params=params, headers=self._get_headers(url))
+                        resp = await client.get(
+                            url, params=params, headers=self._get_headers(url)
+                        )
 
                     if resp.status_code != 200:
-                        raise MOPSHTMLClientError(f"HTTP {resp.status_code}", resp.status_code)
+                        raise MOPSHTMLClientError(
+                            f"HTTP {resp.status_code}", resp.status_code
+                        )
 
                     resp.encoding = encoding
                     html_content = resp.text
@@ -250,15 +267,21 @@ class MOPSHTMLClient:
 
             except httpx.ConnectError as e:
                 if "SSL" in str(e) or "CERTIFICATE" in str(e):
-                    logger.debug(f"SSL error attempt {attempt + 1}/{self.max_retries}: {e}")
+                    logger.debug(
+                        f"SSL error attempt {attempt + 1}/{self.max_retries}: {e}"
+                    )
                     if attempt < self.max_retries - 1:
                         await asyncio.sleep(0.5 * (attempt + 1))
                         continue
-                    raise MOPSHTMLClientError(f"SSL verification failed after retries: {e}")
+                    raise MOPSHTMLClientError(
+                        f"SSL verification failed after retries: {e}"
+                    )
                 raise MOPSHTMLClientError(f"Connection error: {e}")
 
             except httpx.TimeoutException:
-                logger.warning(f"Timeout attempt {attempt + 1}/{self.max_retries} for {endpoint}")
+                logger.warning(
+                    f"Timeout attempt {attempt + 1}/{self.max_retries} for {endpoint}"
+                )
                 if attempt == self.max_retries - 1:
                     raise MOPSHTMLClientError("Request timeout after retries")
                 await asyncio.sleep(1 * (attempt + 1))
@@ -306,7 +329,9 @@ class MOPSHTMLClient:
                         raise MOPSDataNotFoundError(f"Page not found: {url}")
 
                     if resp.status_code != 200:
-                        raise MOPSHTMLClientError(f"HTTP {resp.status_code}", resp.status_code)
+                        raise MOPSHTMLClientError(
+                            f"HTTP {resp.status_code}", resp.status_code
+                        )
 
                     resp.encoding = encoding
                     html_content = resp.text
@@ -320,11 +345,15 @@ class MOPSHTMLClient:
 
             except httpx.ConnectError as e:
                 if "SSL" in str(e) or "CERTIFICATE" in str(e):
-                    logger.debug(f"SSL error attempt {attempt + 1}/{self.max_retries}: {e}")
+                    logger.debug(
+                        f"SSL error attempt {attempt + 1}/{self.max_retries}: {e}"
+                    )
                     if attempt < self.max_retries - 1:
                         time.sleep(0.5 * (attempt + 1))
                         continue
-                    raise MOPSHTMLClientError(f"SSL verification failed after retries: {e}")
+                    raise MOPSHTMLClientError(
+                        f"SSL verification failed after retries: {e}"
+                    )
                 raise MOPSHTMLClientError(f"Connection error: {e}")
 
             except httpx.TimeoutException:
@@ -376,7 +405,9 @@ class MOPSHTMLClient:
                         raise MOPSDataNotFoundError(f"Page not found: {url}")
 
                     if resp.status_code != 200:
-                        raise MOPSHTMLClientError(f"HTTP {resp.status_code}", resp.status_code)
+                        raise MOPSHTMLClientError(
+                            f"HTTP {resp.status_code}", resp.status_code
+                        )
 
                     resp.encoding = encoding
                     html_content = resp.text
@@ -390,11 +421,15 @@ class MOPSHTMLClient:
 
             except httpx.ConnectError as e:
                 if "SSL" in str(e) or "CERTIFICATE" in str(e):
-                    logger.debug(f"SSL error attempt {attempt + 1}/{self.max_retries}: {e}")
+                    logger.debug(
+                        f"SSL error attempt {attempt + 1}/{self.max_retries}: {e}"
+                    )
                     if attempt < self.max_retries - 1:
                         await asyncio.sleep(0.5 * (attempt + 1))
                         continue
-                    raise MOPSHTMLClientError(f"SSL verification failed after retries: {e}")
+                    raise MOPSHTMLClientError(
+                        f"SSL verification failed after retries: {e}"
+                    )
                 raise MOPSHTMLClientError(f"Connection error: {e}")
 
             except httpx.TimeoutException:

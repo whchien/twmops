@@ -1,6 +1,7 @@
 """
 XBRL-related data models
 """
+
 from typing import List, Optional, Dict
 from pydantic import BaseModel, Field
 

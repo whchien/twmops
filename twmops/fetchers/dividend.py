@@ -2,6 +2,7 @@
 DividendFetcher — fetches dividend distribution data from MOPS.
 MOPS AJAX endpoint: ajax_t05st09_2 (supports quarterly dividends, e.g. TSMC)
 """
+
 import logging
 import re
 from typing import Optional, List
@@ -36,7 +37,9 @@ class DividendFetcher:
     def __init__(self, html_client: Optional[MOPSHTMLClient] = None):
         self.client = html_client or MOPSHTMLClient()
 
-    def _get_dividend_params(self, stock_id: str, year_start: int, year_end: int, query_type: int) -> dict:
+    def _get_dividend_params(
+        self, stock_id: str, year_start: int, year_end: int, query_type: int
+    ) -> dict:
         return {
             "encodeURIComponent": 1,
             "step": 1,
@@ -49,7 +52,9 @@ class DividendFetcher:
             "qryType": str(query_type),
         }
 
-    def _parse_dividend_response(self, dfs: list, stock_id: str, year_start: int, year_end: int) -> DividendResponse:
+    def _parse_dividend_response(
+        self, dfs: list, stock_id: str, year_start: int, year_end: int
+    ) -> DividendResponse:
         company_name = self._extract_company_name(dfs, stock_id)
         records = self._parse_dividend_records(dfs, stock_id, company_name)
         logger.info(f"Parsed {len(records)} dividend records for {stock_id}")
@@ -145,7 +150,9 @@ class DividendFetcher:
             quarterly_dividends=response.records,
         )
 
-    async def get_annual_summary_async(self, stock_id: str, year: int) -> DividendSummary:
+    async def get_annual_summary_async(
+        self, stock_id: str, year: int
+    ) -> DividendSummary:
         """Fetch all dividends for a year and return a rolled-up summary (asynchronous version)."""
         response = await self.get_dividends_async(stock_id, year, year)
 
@@ -171,7 +178,9 @@ class DividendFetcher:
                 return val.replace(stock_id, "").strip()
         return ""
 
-    def _parse_dividend_records(self, dfs: list, stock_id: str, company_name: str) -> List[DividendRecord]:
+    def _parse_dividend_records(
+        self, dfs: list, stock_id: str, company_name: str
+    ) -> List[DividendRecord]:
         records = []
         failure_count = 0
 
@@ -206,21 +215,23 @@ class DividendFetcher:
                     stock_dividend = _p_float(row[7]) if len(row) > 7 else None
 
                     board_date = str(row[2]).strip() if len(row) > 2 else None
-                    if board_date in ['nan', '', '-']:
+                    if board_date in ["nan", "", "-"]:
                         board_date = None
 
-                    records.append(DividendRecord(
-                        stock_id=stock_id,
-                        company_name=company_name,
-                        year=year,
-                        quarter=quarter,
-                        period_start=None,
-                        period_end=None,
-                        board_resolution_date=board_date,
-                        cash_dividend=cash_dividend,
-                        stock_dividend=stock_dividend,
-                        total_dividend=(cash_dividend or 0) + (stock_dividend or 0),
-                    ))
+                    records.append(
+                        DividendRecord(
+                            stock_id=stock_id,
+                            company_name=company_name,
+                            year=year,
+                            quarter=quarter,
+                            period_start=None,
+                            period_end=None,
+                            board_resolution_date=board_date,
+                            cash_dividend=cash_dividend,
+                            stock_dividend=stock_dividend,
+                            total_dividend=(cash_dividend or 0) + (stock_dividend or 0),
+                        )
+                    )
 
                 except Exception as e:
                     failure_count += 1
@@ -228,7 +239,9 @@ class DividendFetcher:
                     continue
 
         if failure_count > 0:
-            logger.warning(f"Encountered {failure_count} errors parsing dividend records for {stock_id}")
+            logger.warning(
+                f"Encountered {failure_count} errors parsing dividend records for {stock_id}"
+            )
 
         return records
 

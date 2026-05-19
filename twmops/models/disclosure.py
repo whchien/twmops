@@ -5,7 +5,7 @@ from pydantic import BaseModel
 class FundsLending(BaseModel):
     entity: str
     has_balance: bool
-    current_month: Optional[int] = None   # thousands TWD
+    current_month: Optional[int] = None  # thousands TWD
     previous_month: Optional[int] = None
     max_limit: Optional[int] = None
 

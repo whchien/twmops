@@ -1,6 +1,7 @@
 """
 lxml XBRL Instance Document parser (fallback when Arelle is unavailable)
 """
+
 import io
 import logging
 from typing import Dict, List, Optional
@@ -24,13 +25,17 @@ def parse_instance_facts(content: bytes) -> List[XBRLFact]:
             context_ref = elem.get("contextRef")
             if context_ref:
                 concept = etree.QName(elem.tag).localname
-                facts.append(XBRLFact(
-                    concept=concept,
-                    value=elem.text,
-                    unit=elem.get("unitRef"),
-                    context_ref=context_ref,
-                    decimals=int(elem.get("decimals")) if elem.get("decimals") else None,
-                ))
+                facts.append(
+                    XBRLFact(
+                        concept=concept,
+                        value=elem.text,
+                        unit=elem.get("unitRef"),
+                        context_ref=context_ref,
+                        decimals=int(elem.get("decimals"))
+                        if elem.get("decimals")
+                        else None,
+                    )
+                )
 
         logger.info(f"Parsed {len(facts)} facts from instance")
 

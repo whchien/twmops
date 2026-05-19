@@ -2,6 +2,7 @@
 InsidersFetcher — fetches director/supervisor share pledging data from MOPS.
 MOPS AJAX endpoint: ajax_stapap1
 """
+
 import logging
 from typing import Optional, List
 
@@ -18,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 class SharePledging(BaseModel):
     """Individual director/supervisor share pledging record."""
+
     stock_id: str
     company_name: str
     year: int
@@ -33,6 +35,7 @@ class SharePledging(BaseModel):
 
 class PledgingSummary(BaseModel):
     """Aggregated pledging summary for the company."""
+
     stock_id: str
     company_name: str
     year: int
@@ -75,7 +78,9 @@ class InsidersFetcher:
     def __init__(self, html_client: Optional[MOPSHTMLClient] = None):
         self.client = html_client or MOPSHTMLClient()
 
-    def _get_pledging_params(self, stock_id: str, year: int, month: int, market: str) -> dict:
+    def _get_pledging_params(
+        self, stock_id: str, year: int, month: int, market: str
+    ) -> dict:
         return {
             "encodeURIComponent": 1,
             "step": 1,
@@ -173,7 +178,7 @@ class InsidersFetcher:
             if len(first_table) > 0:
                 val = str(first_table.iloc[0, 0])
                 if val.startswith(stock_id):
-                    return val[len(stock_id):]
+                    return val[len(stock_id) :]
         return ""
 
     def _parse_pledging_details(
@@ -213,19 +218,29 @@ class InsidersFetcher:
                     if not name or name == "姓名":
                         continue
 
-                    details.append(SharePledging(
-                        stock_id=stock_id,
-                        company_name=company_name,
-                        year=year,
-                        month=month,
-                        title=title,
-                        relationship=relationship,
-                        name=name,
-                        shares_at_election=self._parse_int(row[2]) if len(row) > 2 else None,
-                        current_shares=self._parse_int(row[3]) if len(row) > 3 else None,
-                        pledged_shares=self._parse_int(row[4]) if len(row) > 4 else None,
-                        pledge_ratio=self._parse_percentage(row[5]) if len(row) > 5 else None,
-                    ))
+                    details.append(
+                        SharePledging(
+                            stock_id=stock_id,
+                            company_name=company_name,
+                            year=year,
+                            month=month,
+                            title=title,
+                            relationship=relationship,
+                            name=name,
+                            shares_at_election=self._parse_int(row[2])
+                            if len(row) > 2
+                            else None,
+                            current_shares=self._parse_int(row[3])
+                            if len(row) > 3
+                            else None,
+                            pledged_shares=self._parse_int(row[4])
+                            if len(row) > 4
+                            else None,
+                            pledge_ratio=self._parse_percentage(row[5])
+                            if len(row) > 5
+                            else None,
+                        )
+                    )
                 except Exception as e:
                     logger.debug(f"Failed to parse pledging row: {e}")
                     continue
@@ -255,7 +270,9 @@ class InsidersFetcher:
                 elif "非獨立董事持股設質合計" in row_str:
                     summary.non_independent_director_pledged = self._parse_int(row[1])
                 elif "非獨立董事持股設質比例" in row_str:
-                    summary.non_independent_director_ratio = self._parse_percentage(row[1])
+                    summary.non_independent_director_ratio = self._parse_percentage(
+                        row[1]
+                    )
                 elif "獨立董事持股合計" in row_str:
                     summary.independent_director_shares = self._parse_int(row[1])
                 elif "獨立董事持股設質合計" in row_str:
@@ -277,10 +294,10 @@ class InsidersFetcher:
         if value is None:
             return None
         str_val = str(value).strip()
-        if str_val in ['', '-', 'nan', 'NaN', '不適用']:
+        if str_val in ["", "-", "nan", "NaN", "不適用"]:
             return None
         try:
-            return int(float(str_val.replace(',', '').replace(' ', '')))
+            return int(float(str_val.replace(",", "").replace(" ", "")))
         except (ValueError, TypeError):
             return None
 
@@ -288,9 +305,9 @@ class InsidersFetcher:
         if value is None:
             return None
         str_val = str(value).strip()
-        if str_val in ['', '-', 'nan', 'NaN']:
+        if str_val in ["", "-", "nan", "NaN"]:
             return None
         try:
-            return round(float(str_val.replace('%', '').replace(',', '').strip()), 2)
+            return round(float(str_val.replace("%", "").replace(",", "").strip()), 2)
         except (ValueError, TypeError):
             return None

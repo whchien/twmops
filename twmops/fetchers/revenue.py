@@ -5,6 +5,7 @@ No database dependency; always fetches directly from MOPS.
 URL pattern:
     https://mopsov.twse.com.tw/nas/t21/{market}/t21sc03_{year}_{month}_{company_type}.html
 """
+
 import logging
 from typing import Optional, List
 
@@ -46,9 +47,13 @@ class RevenueFetcher:
 
     def _validate_market(self, market: str) -> None:
         if market not in self.MARKET_TYPES:
-            raise RevenueFetcherError(f"Invalid market: {market}. Must be one of {self.MARKET_TYPES}")
+            raise RevenueFetcherError(
+                f"Invalid market: {market}. Must be one of {self.MARKET_TYPES}"
+            )
 
-    def _get_revenue_url(self, year: int, month: int, market: str, company_type: int) -> str:
+    def _get_revenue_url(
+        self, year: int, month: int, market: str, company_type: int
+    ) -> str:
         return self.client.REVENUE_URL_PATTERN.format(
             market=market,
             year=year,
@@ -158,8 +163,9 @@ class RevenueFetcher:
                 return rev
         return None
 
-
-    def _parse_revenue_tables(self, dfs: list, year: int, month: int) -> List[MonthlyRevenue]:
+    def _parse_revenue_tables(
+        self, dfs: list, year: int, month: int
+    ) -> List[MonthlyRevenue]:
         revenues: List[MonthlyRevenue] = []
         for df in dfs:
             if df.shape[0] < 2 or df.shape[1] < 5:
@@ -177,7 +183,11 @@ class RevenueFetcher:
             try:
                 stock_id = str(row[0]).strip()
 
-                if not stock_id or len(stock_id) < 4 or stock_id in ['合計', '公司代號', '公司', '合計:']:
+                if (
+                    not stock_id
+                    or len(stock_id) < 4
+                    or stock_id in ["合計", "公司代號", "公司", "合計:"]
+                ):
                     continue
                 if not stock_id[0].isdigit():
                     continue
@@ -202,23 +212,27 @@ class RevenueFetcher:
                 accumulated_yoy_change = _p_float(row[9]) if len(row) > 9 else None
 
                 comment_raw = str(row[10]).strip() if len(row) > 10 else ""
-                comment = comment_raw if comment_raw not in ['-', 'nan', '', 'None'] else None
+                comment = (
+                    comment_raw if comment_raw not in ["-", "nan", "", "None"] else None
+                )
 
-                revenues.append(MonthlyRevenue(
-                    stock_id=stock_id,
-                    company_name=company_name,
-                    year=year,
-                    month=month,
-                    revenue=revenue,
-                    revenue_last_month=revenue_last_month,
-                    revenue_last_year=revenue_last_year,
-                    mom_change=mom_change,
-                    yoy_change=yoy_change,
-                    accumulated_revenue=accumulated_revenue,
-                    accumulated_last_year=accumulated_last_year,
-                    accumulated_yoy_change=accumulated_yoy_change,
-                    comment=comment if comment and comment != 'nan' else None,
-                ))
+                revenues.append(
+                    MonthlyRevenue(
+                        stock_id=stock_id,
+                        company_name=company_name,
+                        year=year,
+                        month=month,
+                        revenue=revenue,
+                        revenue_last_month=revenue_last_month,
+                        revenue_last_year=revenue_last_year,
+                        mom_change=mom_change,
+                        yoy_change=yoy_change,
+                        accumulated_revenue=accumulated_revenue,
+                        accumulated_last_year=accumulated_last_year,
+                        accumulated_yoy_change=accumulated_yoy_change,
+                        comment=comment if comment and comment != "nan" else None,
+                    )
+                )
 
             except Exception as e:
                 failure_count += 1

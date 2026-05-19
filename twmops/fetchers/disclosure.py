@@ -2,6 +2,7 @@
 DisclosureFetcher — fetches funds lending and endorsement/guarantee disclosures from MOPS.
 MOPS AJAX endpoint: ajax_t05st11
 """
+
 import logging
 import re
 from typing import Optional, List
@@ -45,7 +46,9 @@ class DisclosureFetcher:
     def __init__(self, html_client: Optional[MOPSHTMLClient] = None):
         self.client = html_client or MOPSHTMLClient()
 
-    def _get_disclosure_params(self, stock_id: str, year: int, month: int, market: str) -> dict:
+    def _get_disclosure_params(
+        self, stock_id: str, year: int, month: int, market: str
+    ) -> dict:
         return {
             "encodeURIComponent": 1,
             "step": 1,
@@ -132,7 +135,9 @@ class DisclosureFetcher:
         cross_company = self._parse_cross_company(dfs)
         china_guarantee = self._parse_china_guarantee(dfs)
 
-        logger.info(f"Parsed disclosure for {stock_id}: {len(funds_lending)} lending, {len(endorsement)} guarantee")
+        logger.info(
+            f"Parsed disclosure for {stock_id}: {len(funds_lending)} lending, {len(endorsement)} guarantee"
+        )
 
         return DisclosureResponse(
             stock_id=stock_id,
@@ -167,13 +172,21 @@ class DisclosureFetcher:
                         continue
                     entity = "本公司" if "本公司" in first_col else "子公司"
                     has_balance = "有" in first_col
-                    results.append(FundsLending(
-                        entity=entity,
-                        has_balance=has_balance,
-                        current_month=self._parse_int(row.iloc[1]) if len(row) > 1 else None,
-                        previous_month=self._parse_int(row.iloc[2]) if len(row) > 2 else None,
-                        max_limit=self._parse_int(row.iloc[3]) if len(row) > 3 else None,
-                    ))
+                    results.append(
+                        FundsLending(
+                            entity=entity,
+                            has_balance=has_balance,
+                            current_month=self._parse_int(row.iloc[1])
+                            if len(row) > 1
+                            else None,
+                            previous_month=self._parse_int(row.iloc[2])
+                            if len(row) > 2
+                            else None,
+                            max_limit=self._parse_int(row.iloc[3])
+                            if len(row) > 3
+                            else None,
+                        )
+                    )
                 except Exception as e:
                     logger.warning(f"Failed to parse funds lending row: {e}")
         return results
@@ -191,13 +204,21 @@ class DisclosureFetcher:
                         continue
                     entity = "本公司" if "本公司 " in first_col else "子公司"
                     has_balance = "有" in first_col
-                    results.append(EndorsementGuarantee(
-                        entity=entity,
-                        has_balance=has_balance,
-                        monthly_change=self._parse_int(row.iloc[1]) if len(row) > 1 else None,
-                        accumulated_balance=self._parse_int(row.iloc[2]) if len(row) > 2 else None,
-                        max_limit=self._parse_int(row.iloc[3]) if len(row) > 3 else None,
-                    ))
+                    results.append(
+                        EndorsementGuarantee(
+                            entity=entity,
+                            has_balance=has_balance,
+                            monthly_change=self._parse_int(row.iloc[1])
+                            if len(row) > 1
+                            else None,
+                            accumulated_balance=self._parse_int(row.iloc[2])
+                            if len(row) > 2
+                            else None,
+                            max_limit=self._parse_int(row.iloc[3])
+                            if len(row) > 3
+                            else None,
+                        )
+                    )
                 except Exception as e:
                     logger.warning(f"Failed to parse endorsement row: {e}")
         return results
@@ -215,7 +236,9 @@ class DisclosureFetcher:
                 elif "子公司對本公司" in first_col:
                     s_to_p = self._parse_int(row.iloc[1]) if len(row) > 1 else None
             if p_to_s is not None or s_to_p is not None:
-                return CrossCompanyGuarantee(parent_to_subsidiary=p_to_s, subsidiary_to_parent=s_to_p)
+                return CrossCompanyGuarantee(
+                    parent_to_subsidiary=p_to_s, subsidiary_to_parent=s_to_p
+                )
         return None
 
     def _parse_china_guarantee(self, dfs: list) -> List[ChinaGuarantee]:
@@ -230,12 +253,18 @@ class DisclosureFetcher:
                         continue
                     entity = "本公司" if "本公司" in first_col else "子公司"
                     has_balance = "有" in first_col
-                    results.append(ChinaGuarantee(
-                        entity=entity,
-                        has_balance=has_balance,
-                        monthly_change=self._parse_int(row.iloc[1]) if len(row) > 1 else None,
-                        accumulated_balance=self._parse_int(row.iloc[2]) if len(row) > 2 else None,
-                    ))
+                    results.append(
+                        ChinaGuarantee(
+                            entity=entity,
+                            has_balance=has_balance,
+                            monthly_change=self._parse_int(row.iloc[1])
+                            if len(row) > 1
+                            else None,
+                            accumulated_balance=self._parse_int(row.iloc[2])
+                            if len(row) > 2
+                            else None,
+                        )
+                    )
                 except Exception as e:
                     logger.warning(f"Failed to parse china guarantee row: {e}")
         return results

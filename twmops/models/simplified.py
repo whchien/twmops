@@ -1,6 +1,7 @@
 """
 Simplified financial statement format (similar to FinMind/FinLab style)
 """
+
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
@@ -15,7 +16,7 @@ class SimplifiedFinancialItem(BaseModel):
 
 class SimplifiedFinancialStatement(BaseModel):
     stock_id: str
-    year: int   # ROC year (民國年)
+    year: int  # ROC year (民國年)
     quarter: int
     report_date: str  # YYYY-MM-DD
     statement_type: str  # income_statement | balance_sheet | cash_flow

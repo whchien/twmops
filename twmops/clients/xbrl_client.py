@@ -2,6 +2,7 @@
 MOPS XBRL Client — downloads XBRL/iXBRL financial report files from TWSE MOPS.
 For HTML table crawling use MOPSHTMLClient instead.
 """
+
 import asyncio
 import io
 import logging
@@ -104,10 +105,13 @@ class MOPSXBRLClient:
                     follow_redirects=True,
                     verify=verify_ssl,
                 ) as client:
-                    resp = client.get(download_url, headers={
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-                        "Referer": f"{self.MOPS_BASE}/mops/web/t203sb01",
-                    })
+                    resp = client.get(
+                        download_url,
+                        headers={
+                            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                            "Referer": f"{self.MOPS_BASE}/mops/web/t203sb01",
+                        },
+                    )
 
                     if resp.status_code == 200:
                         content = resp.content
@@ -122,15 +126,21 @@ class MOPSXBRLClient:
 
                         raise MOPSXBRLClientError("MOPS returned invalid content")
                     else:
-                        raise MOPSXBRLClientError(f"HTTP {resp.status_code}", resp.status_code)
+                        raise MOPSXBRLClientError(
+                            f"HTTP {resp.status_code}", resp.status_code
+                        )
 
             except httpx.ConnectError as e:
                 if "SSL" in str(e) or "CERTIFICATE" in str(e):
-                    logger.debug(f"SSL error attempt {attempt + 1}/{self.max_retries}: {e}")
+                    logger.debug(
+                        f"SSL error attempt {attempt + 1}/{self.max_retries}: {e}"
+                    )
                     if attempt < self.max_retries - 1:
                         time.sleep(0.5 * (attempt + 1))
                         continue
-                    raise MOPSXBRLClientError(f"SSL verification failed after retries: {e}")
+                    raise MOPSXBRLClientError(
+                        f"SSL verification failed after retries: {e}"
+                    )
                 raise MOPSXBRLClientError(f"Connection error: {e}")
 
             except httpx.TimeoutException:
@@ -142,7 +152,9 @@ class MOPSXBRLClient:
             except httpx.HTTPError as e:
                 raise MOPSXBRLClientError(f"HTTP error: {e}")
 
-        raise MOPSXBRLClientError(f"Failed to download XBRL for {stock_id} {year}Q{quarter}")
+        raise MOPSXBRLClientError(
+            f"Failed to download XBRL for {stock_id} {year}Q{quarter}"
+        )
 
     async def download_xbrl_async(
         self,
@@ -194,10 +206,13 @@ class MOPSXBRLClient:
                     follow_redirects=True,
                     verify=verify_ssl,
                 ) as client:
-                    resp = await client.get(download_url, headers={
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-                        "Referer": f"{self.MOPS_BASE}/mops/web/t203sb01",
-                    })
+                    resp = await client.get(
+                        download_url,
+                        headers={
+                            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                            "Referer": f"{self.MOPS_BASE}/mops/web/t203sb01",
+                        },
+                    )
 
                     if resp.status_code == 200:
                         content = resp.content
@@ -212,15 +227,21 @@ class MOPSXBRLClient:
 
                         raise MOPSXBRLClientError("MOPS returned invalid content")
                     else:
-                        raise MOPSXBRLClientError(f"HTTP {resp.status_code}", resp.status_code)
+                        raise MOPSXBRLClientError(
+                            f"HTTP {resp.status_code}", resp.status_code
+                        )
 
             except httpx.ConnectError as e:
                 if "SSL" in str(e) or "CERTIFICATE" in str(e):
-                    logger.debug(f"SSL error attempt {attempt + 1}/{self.max_retries}: {e}")
+                    logger.debug(
+                        f"SSL error attempt {attempt + 1}/{self.max_retries}: {e}"
+                    )
                     if attempt < self.max_retries - 1:
                         await asyncio.sleep(0.5 * (attempt + 1))
                         continue
-                    raise MOPSXBRLClientError(f"SSL verification failed after retries: {e}")
+                    raise MOPSXBRLClientError(
+                        f"SSL verification failed after retries: {e}"
+                    )
                 raise MOPSXBRLClientError(f"Connection error: {e}")
 
             except httpx.TimeoutException:
@@ -232,7 +253,9 @@ class MOPSXBRLClient:
             except httpx.HTTPError as e:
                 raise MOPSXBRLClientError(f"HTTP error: {e}")
 
-        raise MOPSXBRLClientError(f"Failed to download XBRL for {stock_id} {year}Q{quarter}")
+        raise MOPSXBRLClientError(
+            f"Failed to download XBRL for {stock_id} {year}Q{quarter}"
+        )
 
     def extract_zip(self, zip_content: bytes) -> dict[str, bytes]:
         """Unzip an XBRL ZIP archive into {filename: bytes}."""

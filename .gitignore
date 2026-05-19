@@ -5,6 +5,8 @@ __pycache__/
 
 poetry.lock
 
+docs/
+
 # C extensions
 *.so
 

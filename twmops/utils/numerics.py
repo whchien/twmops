@@ -1,6 +1,7 @@
 """
 Numeric parsing utilities for financial data
 """
+
 from decimal import Decimal, InvalidOperation
 from typing import Optional
 
@@ -48,8 +49,8 @@ def is_numeric_string(value_str: Optional[str]) -> bool:
     if not cleaned or cleaned in ("-", "—"):
         return False
 
-    test_str = cleaned.lstrip('-')
-    if test_str.count('.') > 1:
+    test_str = cleaned.lstrip("-")
+    if test_str.count(".") > 1:
         return False
 
-    return test_str.replace('.', '', 1).isdigit()
+    return test_str.replace(".", "", 1).isdigit()

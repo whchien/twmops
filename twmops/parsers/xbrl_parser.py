@@ -2,6 +2,7 @@
 XBRLParser — auto-detects ZIP vs iXBRL format and parses into XBRLPackage.
 Uses Arelle when available; falls back to lxml for basic fact/context extraction.
 """
+
 import io
 import logging
 import tempfile
@@ -44,6 +45,7 @@ def _get_schema_mappings() -> dict:
     """Return schema path mappings, preferring TaxonomyManager over the static fallback."""
     try:
         from twmops.taxonomy.manager import TaxonomyManager
+
         manager = TaxonomyManager()
         mappings = manager.get_schema_mappings()
         if mappings:
@@ -52,14 +54,38 @@ def _get_schema_mappings() -> dict:
         logger.warning(f"Failed to get schema mappings from TaxonomyManager: {e}")
 
     return {
-        "tifrs-ci-cr-2020-06-30.xsd": str(TAXONOMY_BASE / "tifrs-20200630/tifrs-20200630/XBRL_TW_Entry_Points/CI/CR/tifrs-ci-cr-2020-06-30.xsd"),
-        "tifrs-ci-cr-2019-03-31.xsd": str(TAXONOMY_BASE / "tifrs-20190331/tifrs-20190331/XBRL_TW_Entry_Points/CI/CR/tifrs-ci-cr-2019-03-31.xsd"),
-        "tifrs-ci-cr-2018-09-30.xsd": str(TAXONOMY_BASE / "tifrs-20180930/tifrs-20180930/XBRL_TW_Entry_Points/CI/CR/tifrs-ci-cr-2018-09-30.xsd"),
-        "tifrs-ci-cr-2018-03-31.xsd": str(TAXONOMY_BASE / "tifrs-20180331/tifrs-20180331/XBRL_TW_Entry_Points/CI/CR/tifrs-ci-cr-2018-03-31.xsd"),
-        "tifrs-ci-cr-2017-03-31.xsd": str(TAXONOMY_BASE / "tifrs-20170331/tifrs-20170331/XBRL_TW_Entry_Points/CI/CR/tifrs-ci-cr-2017-03-31.xsd"),
-        "tifrs-ci-cr-2015-03-31.xsd": str(TAXONOMY_BASE / "tifrs-20150331/tifrs-20150331/XBRL_TW_Entry_Points/CI/CR/tifrs-ci-cr-2015-03-31.xsd"),
-        "tifrs-ci-cr-2014-03-31.xsd": str(TAXONOMY_BASE / "tifrs-20140331/tifrs-20140331/XBRL_TW_Entry_Points/CI/CR/tifrs-ci-cr-2014-03-31.xsd"),
-        "tifrs-ci-cr-2013-03-31.xsd": str(TAXONOMY_BASE / "tifrs-20130331/tifrs-20130331/XBRL_TW_Entry_Points/CI/CR/tifrs-ci-cr-2013-03-31.xsd"),
+        "tifrs-ci-cr-2020-06-30.xsd": str(
+            TAXONOMY_BASE
+            / "tifrs-20200630/tifrs-20200630/XBRL_TW_Entry_Points/CI/CR/tifrs-ci-cr-2020-06-30.xsd"
+        ),
+        "tifrs-ci-cr-2019-03-31.xsd": str(
+            TAXONOMY_BASE
+            / "tifrs-20190331/tifrs-20190331/XBRL_TW_Entry_Points/CI/CR/tifrs-ci-cr-2019-03-31.xsd"
+        ),
+        "tifrs-ci-cr-2018-09-30.xsd": str(
+            TAXONOMY_BASE
+            / "tifrs-20180930/tifrs-20180930/XBRL_TW_Entry_Points/CI/CR/tifrs-ci-cr-2018-09-30.xsd"
+        ),
+        "tifrs-ci-cr-2018-03-31.xsd": str(
+            TAXONOMY_BASE
+            / "tifrs-20180331/tifrs-20180331/XBRL_TW_Entry_Points/CI/CR/tifrs-ci-cr-2018-03-31.xsd"
+        ),
+        "tifrs-ci-cr-2017-03-31.xsd": str(
+            TAXONOMY_BASE
+            / "tifrs-20170331/tifrs-20170331/XBRL_TW_Entry_Points/CI/CR/tifrs-ci-cr-2017-03-31.xsd"
+        ),
+        "tifrs-ci-cr-2015-03-31.xsd": str(
+            TAXONOMY_BASE
+            / "tifrs-20150331/tifrs-20150331/XBRL_TW_Entry_Points/CI/CR/tifrs-ci-cr-2015-03-31.xsd"
+        ),
+        "tifrs-ci-cr-2014-03-31.xsd": str(
+            TAXONOMY_BASE
+            / "tifrs-20140331/tifrs-20140331/XBRL_TW_Entry_Points/CI/CR/tifrs-ci-cr-2014-03-31.xsd"
+        ),
+        "tifrs-ci-cr-2013-03-31.xsd": str(
+            TAXONOMY_BASE
+            / "tifrs-20130331/tifrs-20130331/XBRL_TW_Entry_Points/CI/CR/tifrs-ci-cr-2013-03-31.xsd"
+        ),
     }
 
 
@@ -77,9 +103,13 @@ class XBRLParser:
     def __init__(self):
         self._arelle_available = check_arelle_available()
         if not self._arelle_available:
-            logger.warning("Arelle not available — falling back to lxml parsing (no hierarchy/calculation)")
+            logger.warning(
+                "Arelle not available — falling back to lxml parsing (no hierarchy/calculation)"
+            )
 
-    def parse(self, content: bytes, stock_id: str, year: int, quarter: int) -> XBRLPackage:
+    def parse(
+        self, content: bytes, stock_id: str, year: int, quarter: int
+    ) -> XBRLPackage:
         """
         Auto-detect format and parse.
 
@@ -96,8 +126,11 @@ class XBRLParser:
         else:
             raise XBRLParserError("Unknown file format — expected ZIP or iXBRL HTML")
 
-    def parse_zip(self, zip_content: bytes, stock_id: str, year: int, quarter: int) -> XBRLPackage:
+    def parse_zip(
+        self, zip_content: bytes, stock_id: str, year: int, quarter: int
+    ) -> XBRLPackage:
         from twmops.clients.xbrl_client import MOPSXBRLClient
+
         client = MOPSXBRLClient()
         files = client.extract_zip(zip_content)
 
@@ -109,17 +142,21 @@ class XBRLParser:
             return self._parse_with_arelle(files, package)
         return self._parse_with_lxml(files, package)
 
-    def parse_ixbrl(self, ixbrl_content: bytes, stock_id: str, year: int, quarter: int) -> XBRLPackage:
+    def parse_ixbrl(
+        self, ixbrl_content: bytes, stock_id: str, year: int, quarter: int
+    ) -> XBRLPackage:
         package = XBRLPackage(stock_id=stock_id, year=year, quarter=quarter)
 
         if self._arelle_available:
             try:
                 return self._parse_ixbrl_with_arelle(ixbrl_content, package)
             except Exception as e:
-                logger.warning(f"Arelle parsing failed for iXBRL, falling back to lxml: {e}")
+                logger.warning(
+                    f"Arelle parsing failed for iXBRL, falling back to lxml: {e}"
+                )
 
         try:
-            parser = etree.HTMLParser(encoding='utf-8')
+            parser = etree.HTMLParser(encoding="utf-8")
             tree = etree.parse(io.BytesIO(ixbrl_content), parser)
             root = tree.getroot()
 
@@ -129,45 +166,55 @@ class XBRLParser:
             for elem in root.iter():
                 tag_lower = str(elem.tag).lower()
 
-                if 'nonfraction' in tag_lower:
+                if "nonfraction" in tag_lower:
                     name = elem.get("name", "")
-                    context_ref = elem.get("contextref", "") or elem.get("contextRef", "")
+                    context_ref = elem.get("contextref", "") or elem.get(
+                        "contextRef", ""
+                    )
                     unit_ref = elem.get("unitref") or elem.get("unitRef")
                     decimals = elem.get("decimals")
                     raw_value = (elem.text or "").replace(",", "").strip()
                     concept = name.split(":")[-1] if ":" in name else name
 
-                    facts.append(XBRLFact(
-                        concept=concept,
-                        value=raw_value,
-                        unit=unit_ref,
-                        context_ref=context_ref,
-                        decimals=int(decimals) if decimals and decimals.lstrip('-').isdigit() else None,
-                    ))
+                    facts.append(
+                        XBRLFact(
+                            concept=concept,
+                            value=raw_value,
+                            unit=unit_ref,
+                            context_ref=context_ref,
+                            decimals=int(decimals)
+                            if decimals and decimals.lstrip("-").isdigit()
+                            else None,
+                        )
+                    )
 
-                elif 'nonnumeric' in tag_lower:
+                elif "nonnumeric" in tag_lower:
                     name = elem.get("name", "")
-                    context_ref = elem.get("contextref", "") or elem.get("contextRef", "")
+                    context_ref = elem.get("contextref", "") or elem.get(
+                        "contextRef", ""
+                    )
                     concept = name.split(":")[-1] if ":" in name else name
 
-                    facts.append(XBRLFact(
-                        concept=concept,
-                        value=elem.text,
-                        unit=None,
-                        context_ref=context_ref,
-                        decimals=None,
-                    ))
+                    facts.append(
+                        XBRLFact(
+                            concept=concept,
+                            value=elem.text,
+                            unit=None,
+                            context_ref=context_ref,
+                            decimals=None,
+                        )
+                    )
 
             package.facts = facts
             logger.info(f"Parsed {len(facts)} facts from iXBRL with lxml")
 
             contexts = {}
             for ctx in root.iter():
-                if 'context' in str(ctx.tag).lower() and ctx.get("id"):
+                if "context" in str(ctx.tag).lower() and ctx.get("id"):
                     ctx_id = ctx.get("id", "")
                     entity = ""
                     for id_elem in ctx.iter():
-                        if 'identifier' in str(id_elem.tag).lower():
+                        if "identifier" in str(id_elem.tag).lower():
                             entity = id_elem.text or ""
                             break
 
@@ -177,11 +224,11 @@ class XBRLParser:
 
                     for period_elem in ctx.iter():
                         tag_lower2 = str(period_elem.tag).lower()
-                        if 'instant' in tag_lower2:
+                        if "instant" in tag_lower2:
                             instant = period_elem.text
-                        elif 'startdate' in tag_lower2:
+                        elif "startdate" in tag_lower2:
                             start_date = period_elem.text
-                        elif 'enddate' in tag_lower2:
+                        elif "enddate" in tag_lower2:
                             end_date = period_elem.text
 
                     contexts[ctx_id] = XBRLContext(
@@ -201,12 +248,14 @@ class XBRLParser:
 
         return package
 
-    def _parse_ixbrl_with_arelle(self, content: bytes, package: XBRLPackage) -> XBRLPackage:
+    def _parse_ixbrl_with_arelle(
+        self, content: bytes, package: XBRLPackage
+    ) -> XBRLPackage:
         from arelle import Cntlr, ModelManager, FileSource
 
         content_modified = replace_schema_refs(content, _get_schema_mappings())
 
-        with tempfile.NamedTemporaryFile(suffix='.html', delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as tmp:
             tmp.write(content_modified)
             tmp_path = tmp.name
 
@@ -227,8 +276,12 @@ class XBRLParser:
                 package.labels, package.labels_en = extract_labels(model_xbrl)
 
                 if not package.labels:
-                    logger.warning("Arelle returned empty labels, extracting from HTML structure")
-                    package.labels, package.labels_en = extract_labels_from_html(content)
+                    logger.warning(
+                        "Arelle returned empty labels, extracting from HTML structure"
+                    )
+                    package.labels, package.labels_en = extract_labels_from_html(
+                        content
+                    )
 
                 model_xbrl.close()
                 logger.info(
@@ -243,7 +296,9 @@ class XBRLParser:
 
         return package
 
-    def _parse_with_arelle(self, files: Dict[str, bytes], package: XBRLPackage) -> XBRLPackage:
+    def _parse_with_arelle(
+        self, files: Dict[str, bytes], package: XBRLPackage
+    ) -> XBRLPackage:
         from arelle import Cntlr, ModelManager, FileSource
 
         instance_file = self._find_instance_file(files)
@@ -262,7 +317,9 @@ class XBRLParser:
             model_manager = ModelManager.initialize(cntlr)
 
             try:
-                model_xbrl = model_manager.load(FileSource.FileSource(str(instance_path)))
+                model_xbrl = model_manager.load(
+                    FileSource.FileSource(str(instance_path))
+                )
 
                 if model_xbrl is None:
                     raise XBRLParserError("Failed to load XBRL document with Arelle")
@@ -278,7 +335,9 @@ class XBRLParser:
 
         return package
 
-    def _parse_with_lxml(self, files: Dict[str, bytes], package: XBRLPackage) -> XBRLPackage:
+    def _parse_with_lxml(
+        self, files: Dict[str, bytes], package: XBRLPackage
+    ) -> XBRLPackage:
         for filename, content in files.items():
             if "_cal" in filename.lower() and filename.endswith(".xml"):
                 package.calculation_arcs = parse_calculation_linkbase(content)
@@ -299,10 +358,11 @@ class XBRLParser:
 
     def _find_instance_file(self, files: Dict[str, bytes]) -> Optional[str]:
         for filename in files.keys():
-            if filename.endswith(('.htm', '.html')):
+            if filename.endswith((".htm", ".html")):
                 return filename
-            if filename.endswith('.xml') and not any(
-                x in filename.lower() for x in ['_cal', '_pre', '_lab', '_def', '_ref', '.xsd']
+            if filename.endswith(".xml") and not any(
+                x in filename.lower()
+                for x in ["_cal", "_pre", "_lab", "_def", "_ref", ".xsd"]
             ):
                 return filename
         return None

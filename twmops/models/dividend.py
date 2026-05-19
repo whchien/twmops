@@ -5,7 +5,7 @@ from pydantic import BaseModel
 class DividendRecord(BaseModel):
     stock_id: str
     company_name: str
-    year: int                              # ROC year (民國年)
+    year: int  # ROC year (民國年)
     quarter: Optional[int] = None
     period_start: Optional[str] = None
     period_end: Optional[str] = None

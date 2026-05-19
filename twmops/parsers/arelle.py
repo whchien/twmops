@@ -1,6 +1,7 @@
 """
 Arelle-based XBRL extractors (used when arelle-release is installed)
 """
+
 import logging
 from typing import Dict, List, Tuple, Any
 
@@ -12,6 +13,7 @@ logger = logging.getLogger(__name__)
 def check_arelle_available() -> bool:
     try:
         from arelle import Cntlr  # noqa: F401
+
         return True
     except ImportError:
         return False
@@ -22,17 +24,22 @@ def extract_calculation_arcs(model_xbrl: Any) -> Dict[str, List[CalculationArc]]
 
     try:
         from arelle import XbrlConst
-        for rel in model_xbrl.relationshipSet(XbrlConst.summationItem).modelRelationships:
+
+        for rel in model_xbrl.relationshipSet(
+            XbrlConst.summationItem
+        ).modelRelationships:
             from_concept = rel.fromModelObject.qname.localName
             to_concept = rel.toModelObject.qname.localName
             if from_concept not in result:
                 result[from_concept] = []
-            result[from_concept].append(CalculationArc(
-                from_concept=from_concept,
-                to_concept=to_concept,
-                weight=rel.weight,
-                order=rel.order or 0.0,
-            ))
+            result[from_concept].append(
+                CalculationArc(
+                    from_concept=from_concept,
+                    to_concept=to_concept,
+                    weight=rel.weight,
+                    order=rel.order or 0.0,
+                )
+            )
     except Exception as e:
         logger.error(f"Error extracting calculation arcs with Arelle: {e}")
 
@@ -44,17 +51,20 @@ def extract_presentation_arcs(model_xbrl: Any) -> Dict[str, List[PresentationArc
 
     try:
         from arelle import XbrlConst
+
         for rel in model_xbrl.relationshipSet(XbrlConst.parentChild).modelRelationships:
             from_concept = rel.fromModelObject.qname.localName
             to_concept = rel.toModelObject.qname.localName
             if from_concept not in result:
                 result[from_concept] = []
-            result[from_concept].append(PresentationArc(
-                from_concept=from_concept,
-                to_concept=to_concept,
-                order=rel.order or 0.0,
-                preferred_label=rel.preferredLabel,
-            ))
+            result[from_concept].append(
+                PresentationArc(
+                    from_concept=from_concept,
+                    to_concept=to_concept,
+                    order=rel.order or 0.0,
+                    preferred_label=rel.preferredLabel,
+                )
+            )
     except Exception as e:
         logger.error(f"Error extracting presentation arcs with Arelle: {e}")
 
@@ -66,13 +76,15 @@ def extract_facts(model_xbrl: Any) -> List[XBRLFact]:
 
     try:
         for fact in model_xbrl.facts:
-            facts.append(XBRLFact(
-                concept=fact.qname.localName,
-                value=str(fact.value) if fact.value is not None else None,
-                unit=fact.unit.id if fact.unit is not None else None,
-                context_ref=fact.context.id if fact.context is not None else "",
-                decimals=fact.decimals if hasattr(fact, 'decimals') else None,
-            ))
+            facts.append(
+                XBRLFact(
+                    concept=fact.qname.localName,
+                    value=str(fact.value) if fact.value is not None else None,
+                    unit=fact.unit.id if fact.unit is not None else None,
+                    context_ref=fact.context.id if fact.context is not None else "",
+                    decimals=fact.decimals if hasattr(fact, "decimals") else None,
+                )
+            )
     except Exception as e:
         logger.error(f"Error extracting facts with Arelle: {e}")
 

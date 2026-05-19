@@ -1,6 +1,7 @@
 """
 iXBRL (Inline XBRL) parsing helpers
 """
+
 import io
 import logging
 from pathlib import Path
@@ -17,7 +18,7 @@ def replace_schema_refs(content: bytes, schema_mappings: Dict[str, str]) -> byte
     pointing to locally downloaded taxonomy files.
     """
     try:
-        content_str = content.decode('utf-8')
+        content_str = content.decode("utf-8")
 
         for relative_schema, local_path in schema_mappings.items():
             full_local_path = Path(local_path)
@@ -26,10 +27,12 @@ def replace_schema_refs(content: bytes, schema_mappings: Dict[str, str]) -> byte
                 new_ref = f'xlink:href="file://{full_local_path}"'
                 if old_ref in content_str:
                     content_str = content_str.replace(old_ref, new_ref)
-                    logger.info(f"Replaced schema ref: {relative_schema} -> {full_local_path}")
+                    logger.info(
+                        f"Replaced schema ref: {relative_schema} -> {full_local_path}"
+                    )
                     break
 
-        return content_str.encode('utf-8')
+        return content_str.encode("utf-8")
     except Exception as e:
         logger.warning(f"Failed to replace schema refs: {e}")
         return content
@@ -44,13 +47,13 @@ def extract_labels_from_html(content: bytes) -> Tuple[Dict[str, str], Dict[str, 
     labels_en: Dict[str, str] = {}
 
     try:
-        parser = etree.HTMLParser(encoding='utf-8')
+        parser = etree.HTMLParser(encoding="utf-8")
         tree = etree.parse(io.BytesIO(content), parser)
         root = tree.getroot()
 
         for elem in root.iter():
             tag_lower = str(elem.tag).lower()
-            if 'nonfraction' not in tag_lower:
+            if "nonfraction" not in tag_lower:
                 continue
 
             name = elem.get("name", "")
@@ -67,7 +70,7 @@ def extract_labels_from_html(content: bytes) -> Tuple[Dict[str, str], Dict[str, 
             for _ in range(15):
                 if parent is None:
                     break
-                if parent.tag and 'tr' in str(parent.tag).lower():
+                if parent.tag and "tr" in str(parent.tag).lower():
                     row = parent
                     break
                 parent = parent.getparent()
@@ -77,21 +80,26 @@ def extract_labels_from_html(content: bytes) -> Tuple[Dict[str, str], Dict[str, 
 
             for cell in row.iter():
                 cell_tag = str(cell.tag).lower() if cell.tag else ""
-                if 'td' not in cell_tag and 'th' not in cell_tag:
+                if "td" not in cell_tag and "th" not in cell_tag:
                     continue
 
-                text = ''.join(cell.itertext()).strip()
+                text = "".join(cell.itertext()).strip()
                 if not text:
                     continue
 
-                clean_text = text.replace(',', '').replace('-', '').replace('.', '').replace(' ', '')
+                clean_text = (
+                    text.replace(",", "")
+                    .replace("-", "")
+                    .replace(".", "")
+                    .replace(" ", "")
+                )
                 if clean_text.isdigit():
                     continue
 
                 # Taiwan IFRS uses double full-width space or two spaces to separate zh/en
-                parts = text.split('　　')
+                parts = text.split("　　")
                 if len(parts) < 2:
-                    parts = text.split('  ')
+                    parts = text.split("  ")
 
                 if len(parts) >= 2:
                     zh_text = parts[0].strip()
@@ -101,14 +109,16 @@ def extract_labels_from_html(content: bytes) -> Tuple[Dict[str, str], Dict[str, 
                     if en_text:
                         labels_en[concept] = en_text
                 else:
-                    if any('一' <= c <= '鿿' for c in text):
+                    if any("一" <= c <= "鿿" for c in text):
                         labels_zh[concept] = text[:100]
                     else:
                         labels_en[concept] = text[:100]
 
                 break
 
-        logger.info(f"Extracted {len(labels_zh)} Chinese labels and {len(labels_en)} English labels from HTML")
+        logger.info(
+            f"Extracted {len(labels_zh)} Chinese labels and {len(labels_en)} English labels from HTML"
+        )
 
     except Exception as e:
         logger.error(f"Error extracting labels from HTML: {e}")

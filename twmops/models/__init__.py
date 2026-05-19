@@ -8,8 +8,17 @@ from twmops.models.disclosure import (
     DisclosureResponse,
 )
 from twmops.models.dividend import DividendRecord, DividendSummary, DividendResponse
-from twmops.models.simplified import SimplifiedFinancialItem, SimplifiedFinancialStatement
-from twmops.models.xbrl import CalculationArc, PresentationArc, XBRLFact, XBRLContext, XBRLPackage
+from twmops.models.simplified import (
+    SimplifiedFinancialItem,
+    SimplifiedFinancialStatement,
+)
+from twmops.models.xbrl import (
+    CalculationArc,
+    PresentationArc,
+    XBRLFact,
+    XBRLContext,
+    XBRLPackage,
+)
 from twmops.fetchers.insiders import SharePledging, PledgingSummary, PledgingResponse
 
 __all__ = [

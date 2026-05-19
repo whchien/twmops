@@ -1,6 +1,7 @@
 """
 XBRL Linkbase parsers: Calculation, Presentation, Label
 """
+
 import io
 import logging
 from typing import Dict, List, Tuple
@@ -32,12 +33,14 @@ def parse_calculation_linkbase(content: bytes) -> Dict[str, List[CalculationArc]
             if from_attr:
                 if from_attr not in result:
                     result[from_attr] = []
-                result[from_attr].append(CalculationArc(
-                    from_concept=from_attr,
-                    to_concept=to_attr,
-                    weight=weight,
-                    order=order,
-                ))
+                result[from_attr].append(
+                    CalculationArc(
+                        from_concept=from_attr,
+                        to_concept=to_attr,
+                        weight=weight,
+                        order=order,
+                    )
+                )
 
         logger.info(f"Parsed {sum(len(v) for v in result.values())} calculation arcs")
 
@@ -64,12 +67,14 @@ def parse_presentation_linkbase(content: bytes) -> Dict[str, List[PresentationAr
             if from_attr:
                 if from_attr not in result:
                     result[from_attr] = []
-                result[from_attr].append(PresentationArc(
-                    from_concept=from_attr,
-                    to_concept=to_attr,
-                    order=order,
-                    preferred_label=preferred_label,
-                ))
+                result[from_attr].append(
+                    PresentationArc(
+                        from_concept=from_attr,
+                        to_concept=to_attr,
+                        order=order,
+                        preferred_label=preferred_label,
+                    )
+                )
 
         logger.info(f"Parsed {sum(len(v) for v in result.values())} presentation arcs")
 

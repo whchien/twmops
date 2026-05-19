@@ -41,7 +41,7 @@ class TaxonomyInfo:
     filename: str
     description: str
     publish_date: str
-    taxonomy_type: str   # "tifrs" or "tw-gaap"
+    taxonomy_type: str  # "tifrs" or "tw-gaap"
     start_year: int
     start_quarter: int
     end_year: Optional[int]
@@ -73,7 +73,7 @@ class TaxonomyManager:
         downloaded = []
         for taxonomy in self._taxonomies:
             zip_path = self.taxonomy_dir / taxonomy.filename
-            extract_dir = self.taxonomy_dir / taxonomy.filename.replace('.zip', '')
+            extract_dir = self.taxonomy_dir / taxonomy.filename.replace(".zip", "")
 
             if extract_dir.exists():
                 continue
@@ -103,38 +103,51 @@ class TaxonomyManager:
                 )
                 response.raise_for_status()
 
-            soup = BeautifulSoup(response.text, 'html.parser')
+            soup = BeautifulSoup(response.text, "html.parser")
             self._taxonomies = []
             text = soup.get_text()
 
             patterns = [
-                (r'(\d{4})年第(\d)季起財報適用\s*(tifrs-\d+\.zip|tw-gaap-[\d-]+\.zip)', 'ongoing'),
-                (r'(\d{4})年第(\d)季至(\d{4})年第(\d)季?財報適用\s*(tifrs-\d+\.zip|tw-gaap-[\d-]+\.zip)', 'range'),
-                (r'(\d{4})年第(\d)季財報適用\s*(tifrs-\d+\.zip|tw-gaap-[\d-]+\.zip)', 'single'),
+                (
+                    r"(\d{4})年第(\d)季起財報適用\s*(tifrs-\d+\.zip|tw-gaap-[\d-]+\.zip)",
+                    "ongoing",
+                ),
+                (
+                    r"(\d{4})年第(\d)季至(\d{4})年第(\d)季?財報適用\s*(tifrs-\d+\.zip|tw-gaap-[\d-]+\.zip)",
+                    "range",
+                ),
+                (
+                    r"(\d{4})年第(\d)季財報適用\s*(tifrs-\d+\.zip|tw-gaap-[\d-]+\.zip)",
+                    "single",
+                ),
             ]
 
             for pattern, pattern_type in patterns:
                 for match in re.finditer(pattern, text):
-                    if pattern_type == 'ongoing':
+                    if pattern_type == "ongoing":
                         start_year, start_q, filename = match.groups()
                         taxonomy = TaxonomyInfo(
                             filename=filename,
                             description=f"{start_year}年第{start_q}季起財報適用",
                             publish_date="",
-                            taxonomy_type="tifrs" if filename.startswith("tifrs") else "tw-gaap",
+                            taxonomy_type="tifrs"
+                            if filename.startswith("tifrs")
+                            else "tw-gaap",
                             start_year=int(start_year),
                             start_quarter=int(start_q),
                             end_year=None,
                             end_quarter=None,
                             is_ongoing=True,
                         )
-                    elif pattern_type == 'range':
+                    elif pattern_type == "range":
                         start_year, start_q, end_year, end_q, filename = match.groups()
                         taxonomy = TaxonomyInfo(
                             filename=filename,
                             description=f"{start_year}年第{start_q}季至{end_year}年第{end_q}季財報適用",
                             publish_date="",
-                            taxonomy_type="tifrs" if filename.startswith("tifrs") else "tw-gaap",
+                            taxonomy_type="tifrs"
+                            if filename.startswith("tifrs")
+                            else "tw-gaap",
                             start_year=int(start_year),
                             start_quarter=int(start_q),
                             end_year=int(end_year),
@@ -147,7 +160,9 @@ class TaxonomyManager:
                             filename=filename,
                             description=f"{year}年第{quarter}季財報適用",
                             publish_date="",
-                            taxonomy_type="tifrs" if filename.startswith("tifrs") else "tw-gaap",
+                            taxonomy_type="tifrs"
+                            if filename.startswith("tifrs")
+                            else "tw-gaap",
                             start_year=int(year),
                             start_quarter=int(quarter),
                             end_year=int(year),
@@ -155,7 +170,9 @@ class TaxonomyManager:
                             is_ongoing=False,
                         )
 
-                    if not any(t.filename == taxonomy.filename for t in self._taxonomies):
+                    if not any(
+                        t.filename == taxonomy.filename for t in self._taxonomies
+                    ):
                         self._taxonomies.append(taxonomy)
 
             logger.info(f"Found {len(self._taxonomies)} taxonomies from MOPS")
@@ -181,8 +198,10 @@ class TaxonomyManager:
                 description="",
                 publish_date="",
                 taxonomy_type="tifrs",
-                start_year=sy, start_quarter=sq,
-                end_year=ey, end_quarter=eq,
+                start_year=sy,
+                start_quarter=sq,
+                end_year=ey,
+                end_quarter=eq,
                 is_ongoing=ongoing,
             )
             for f, sy, sq, ey, eq, ongoing in fallback
@@ -197,10 +216,12 @@ class TaxonomyManager:
                 response = await client.get(url, timeout=60.0)
                 response.raise_for_status()
 
-            with open(zip_path, 'wb') as f:
+            with open(zip_path, "wb") as f:
                 f.write(response.content)
 
-            logger.info(f"Downloaded {filename} ({len(response.content) / 1024:.1f} KB)")
+            logger.info(
+                f"Downloaded {filename} ({len(response.content) / 1024:.1f} KB)"
+            )
 
         except Exception as e:
             logger.error(f"Failed to download {filename}: {e}")
@@ -208,7 +229,7 @@ class TaxonomyManager:
 
     def _extract_taxonomy(self, zip_path: Path, extract_dir: Path) -> None:
         try:
-            with zipfile.ZipFile(zip_path, 'r') as zf:
+            with zipfile.ZipFile(zip_path, "r") as zf:
                 zf.extractall(extract_dir)
             logger.info(f"Extracted {zip_path.name} to {extract_dir}")
         except Exception as e:
@@ -222,14 +243,14 @@ class TaxonomyManager:
             if taxonomy.taxonomy_type != "tifrs":
                 continue
 
-            match = re.match(r'tifrs-(\d{4})(\d{2})(\d{2})\.zip', taxonomy.filename)
+            match = re.match(r"tifrs-(\d{4})(\d{2})(\d{2})\.zip", taxonomy.filename)
             if not match:
                 continue
 
             year, month, day = match.groups()
             schema_name = f"tifrs-ci-cr-{year}-{month}-{day}.xsd"
 
-            extract_dir = self.taxonomy_dir / taxonomy.filename.replace('.zip', '')
+            extract_dir = self.taxonomy_dir / taxonomy.filename.replace(".zip", "")
             if not extract_dir.exists():
                 continue
 
@@ -245,7 +266,9 @@ class TaxonomyManager:
             self._generate_schema_mappings()
         return self._schema_mappings
 
-    def get_taxonomy_for_period(self, year: int, quarter: int) -> Optional[TaxonomyInfo]:
+    def get_taxonomy_for_period(
+        self, year: int, quarter: int
+    ) -> Optional[TaxonomyInfo]:
         """
         Return the appropriate TaxonomyInfo for a given reporting period.
 
@@ -255,12 +278,15 @@ class TaxonomyManager:
         """
         for taxonomy in self._taxonomies:
             if taxonomy.is_ongoing:
-                if (year > taxonomy.start_year or
-                        (year == taxonomy.start_year and quarter >= taxonomy.start_quarter)):
+                if year > taxonomy.start_year or (
+                    year == taxonomy.start_year and quarter >= taxonomy.start_quarter
+                ):
                     return taxonomy
             else:
                 start = taxonomy.start_year * 10 + taxonomy.start_quarter
-                end = (taxonomy.end_year or taxonomy.start_year) * 10 + (taxonomy.end_quarter or taxonomy.start_quarter)
+                end = (taxonomy.end_year or taxonomy.start_year) * 10 + (
+                    taxonomy.end_quarter or taxonomy.start_quarter
+                )
                 period = year * 10 + quarter
                 if start <= period <= end:
                     return taxonomy

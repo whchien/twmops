@@ -2,14 +2,20 @@
 BaseFetcher — Abstract base class for all MOPS fetchers.
 Defines common patterns for sync/async dual-mode fetching.
 """
+
 from abc import ABC, abstractmethod
 from typing import Optional, Type
 
-from twmops.clients.html_client import MOPSHTMLClient, MOPSHTMLClientError, MOPSDataNotFoundError
+from twmops.clients.html_client import (
+    MOPSHTMLClient,
+    MOPSHTMLClientError,
+    MOPSDataNotFoundError,
+)
 
 
 class BaseFetcherError(Exception):
     """Base exception for all fetcher errors."""
+
     pass
 
 
@@ -60,6 +66,7 @@ class AjaxFetcher(BaseFetcher):
     Base class for AJAX-based fetchers (POST to MOPS endpoints).
     Implements common pattern for fetch_html_table / fetch_html_table_sync.
     """
+
     pass
 
 
@@ -68,4 +75,5 @@ class StaticHtmlFetcher(BaseFetcher):
     Base class for static HTML fetchers (GET from MOPS URLs).
     Implements common pattern for fetch_static_html / fetch_static_html_sync.
     """
+
     pass
