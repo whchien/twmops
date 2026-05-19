@@ -1,6 +1,6 @@
 [project]
 name = "twmops"
-version = "0.1.1"
+version = "0.1.2"
 description = "Python client for Taiwan MOPS (公開資訊觀測站) financial data"
 readme = "README.md"
 authors = [{name = "Will Chien", email = "locriginal@gmail.com"}]
