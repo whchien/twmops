@@ -1,50 +1,52 @@
-# tw-mops: Taiwan MOPS Financial Data Python Package
+# twmops：台灣 MOPS 財務資料 Python 套件
 
-Fetch Taiwan MOPS (公開資訊觀測站 / Market Observation Post System) financial data with Python. Access revenue, financial statements, dividends, disclosure, and insider trading data.
+用 Python 取得台灣公開資訊觀測站（MOPS / Market Observation Post System）的財務資料。支援營收、財務報表、股利、關聯揭露及內部人交易資料。
 
-## Installation
+**語言** | [English](README_en.md)
+
+## 安裝
 
 ```bash
 pip install twmops
 ```
 
-For full XBRL parsing support (recommended):
+完整 XBRL 解析支援（推薦）：
 ```bash
 pip install 'twmops[xbrl]'
 ```
 
-## Quick Start
+## 快速開始
 
 ```python
 from twmops import RevenueFetcher, FinancialFetcher, DividendFetcher
 
-# Monthly revenue
+# 月營收
 rev_fetcher = RevenueFetcher()
 tsmc = rev_fetcher.get_single_revenue("2330", year=113, month=3)
-print(f"{tsmc.company_name}: NT${tsmc.revenue:,} thousand")
+print(f"{tsmc.company_name}: NT${tsmc.revenue:,} 千元")
 
-# Financial statements
+# 財務報表
 fin_fetcher = FinancialFetcher()
 stmt = fin_fetcher.get_financial_statement(
     stock_id="2330", year=113, quarter=3,
     report_type="balance_sheet", format="tree"
 )
 
-# Dividends
+# 股利
 div_fetcher = DividendFetcher()
 dividends = div_fetcher.get_dividends("2330", year_start=111, year_end=113)
 ```
 
-## Features
+## 功能
 
-- **RevenueFetcher** — Monthly revenue for single companies or market-wide
-- **FinancialFetcher** — Balance sheet, income statement, cash flow, equity statements (hierarchical or flat format)
-- **DividendFetcher** — Historical dividend records and annual summaries
-- **DisclosureFetcher** — Related-party transactions, funds lending, endorsements
-- **InsidersFetcher** — Director/supervisor share pledging details
-- **Async support** — All methods available with `_async` suffix for concurrent requests
+- **RevenueFetcher** — 單一公司或全市場月營收
+- **FinancialFetcher** — 資產負債表、損益表、現金流量表、股東權益變動表（分層或平面格式）
+- **DividendFetcher** — 歷史股利紀錄與年度彙總
+- **DisclosureFetcher** — 關聯人交易、資金貸與、背書保證
+- **InsidersFetcher** — 董監事股份質押詳情
+- **非同步支援** — 所有方法提供 `_async` 後綴版本支援併行請求
 
-## API Reference
+## API 參考
 
 ### RevenueFetcher
 ```python
@@ -74,43 +76,43 @@ get_disclosure(stock_id, year=None, month=None, market="sii") → DisclosureResp
 get_share_pledging(stock_id, year=None, month=None, market="sii") → PledgingResponse
 ```
 
-**Async versions**: Append `_async` to any method name for async support.
+**非同步版本**：在任何方法名稱加上 `_async` 後綴可使用非同步支援。
 
-## Data Formats
+## 資料格式
 
-### Year and Month
-Taiwan uses **ROC year** (民國年): ROC year 113 = Western year 2024 (113 + 1911)
+### 年份與月份
+台灣使用**民國年**：民國 113 年 = 西元 2024 年（113 + 1911）
 
-### Markets
-- `sii`: 上市 (TWSE listed)
-- `otc`: 上櫃 (OTC)
-- `rotc`: 興櫃 (Emerging)
-- `pub`: 公開發行 (Public)
+### 市場代碼
+- `sii`: 上市（TWSE 上市公司）
+- `otc`: 上櫃（OTC）
+- `rotc`: 興櫃（Emerging）
+- `pub`: 公開發行（Public）
 
-### Units
-All amounts in thousands of TWD. Percentages as decimals (0.05 = 5%).
+### 單位
+所有金額單位為新台幣千元。百分比以小數表示（0.05 = 5%）。
 
-## Examples
+## 範例
 
-See `notebooks/` for comprehensive examples:
-- `00_quickstart.ipynb` — Get started in 5 minutes
-- `01_revenue.ipynb` — Revenue analysis
-- `02_financial_statements.ipynb` — Financial statement usage
-- `03_insider_pledging.ipynb` — Share pledging analysis
-- `04_disclosure.ipynb` — Related-party transactions
-- `05_advanced_examples.ipynb` — Multi-source analysis
+詳見 `notebooks/` 中的完整範例：
+- `00_快速開始.ipynb` — 5 分鐘快速入門
+- `01_營收.ipynb` — 營收分析
+- `02_財務報表.ipynb` — 財務報表使用
+- `03_內部人股份質押.ipynb` — 股份質押分析
+- `04_關聯人揭露.ipynb` — 關聯人交易
+- `05_進階範例.ipynb` — 多來源整合分析
 
-## Notes
+## 注意事項
 
-### Rate Limiting
-The HTML client enforces 1 request/second to respect MOPS limits.
+### 速率限制
+HTML 客戶端強制每秒 1 個請求以尊重 MOPS 限制。
 
-### XBRL Parsing
-- **With Arelle** (`pip install 'twmops[xbrl]'`): Full XBRL support
-- **Without Arelle** (lxml fallback): Basic parsing only
-- First XBRL download: ~1-2 seconds (taxonomy cache), subsequent: <1 second
+### XBRL 解析
+- **搭配 Arelle**（`pip install 'twmops[xbrl]'`）：完整 XBRL 支援
+- **無 Arelle**（lxml 備用）：基礎解析僅
+- 首次 XBRL 下載：~1-2 秒（分類法快取），後續：<1 秒
 
-### Async Usage
+### 非同步使用
 ```python
 import asyncio
 
@@ -125,21 +127,21 @@ async def fetch_all():
 asyncio.run(fetch_all())
 ```
 
-## Troubleshooting
+## 疑難排解
 
-**SSL Certificate Error** — If you see `certificate verify failed`, update SSL certificates:
+**SSL 憑證錯誤** — 如出現 `certificate verify failed`，請更新 SSL 憑證：
 ```bash
 pip install --upgrade certifi
 ```
-The package automatically retries without verification if SSL fails (you may see a warning).
+套件在 SSL 失敗時會自動重試（可能看到警告訊息）。
 
-**Missing `arelle` module** — This is expected without `pip install 'twmops[xbrl]'`. The package falls back to lxml parsing with reduced functionality.
+**缺少 `arelle` 模組** — 未執行 `pip install 'twmops[xbrl]'` 時正常。套件會改用 lxml 解析並降低功能。
 
-**`MOPSDataNotFoundError`** — The requested data is unavailable. This happens for very recent companies, delisted companies, or non-existent stock IDs.
+**`MOPSDataNotFoundError`** — 請求的資料無法取得。這會發生在全新上市公司、已下市公司或不存在的股票代號上。
 
-**Network timeout** — If MOPS is slow, try retrying with exponential backoff or check [MOPS status](https://mops.twse.com.tw). Consider using a VPN if outside Taiwan.
+**網路逾時** — 若 MOPS 緩慢，嘗試使用指數退避重試或檢查 [MOPS 狀態](https://mops.twse.com.tw)。若在台灣以外，考慮使用 VPN。
 
-## Development
+## 開發
 
 ```bash
 git clone <repo>
@@ -148,21 +150,21 @@ pip install -e '.[xbrl]'
 pytest tests/
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
+詳見 [CONTRIBUTING.md](CONTRIBUTING.md) 貢獻指南。
 
-## Legal Notice
+## 法律聲明
 
-**Data Source**: This package fetches data from Taiwan's MOPS, maintained by TWSE and Taiwan OTC Exchange.
+**資料來源**：本套件從台灣 MOPS 取得資料，由 TWSE 及台灣櫃檯買賣中心維護。
 
-**Terms of Use**: Users are responsible for complying with MOPS's [terms of use](https://mops.twse.com.tw). MOPS data is public, but usage restrictions may apply based on jurisdiction and use case. For commercial use, investment funds, or data redistribution, review MOPS's official terms.
+**使用條款**：使用者必須遵守 MOPS 的[使用條款](https://mops.twse.com.tw)。MOPS 資料為公開資訊，但使用可能受管轄區與使用目的限制。商業使用、投資基金或資料重新分發，請檢視 MOPS 官方條款。
 
-**Disclaimer**: This package is provided "as-is" without warranty. Always validate fetched data independently before making investment decisions.
+**免責聲明**：本套件以「現況」提供，不含任何保固。做投資決策前務必獨立驗證取得資料。
 
-## License
+## 授權
 
-MIT License. See [LICENSE](LICENSE) for details. The license covers only this package's source code, not the data fetched from MOPS.
+MIT License。詳見 [LICENSE](LICENSE)。授權僅涵蓋本套件源碼，不包含從 MOPS 取得的資料。
 
-## Citation
+## 引用
 
 ```bibtex
 @software{twmops,
@@ -173,7 +175,7 @@ MIT License. See [LICENSE](LICENSE) for details. The license covers only this pa
 }
 ```
 
-## Support
+## 支援
 
-- **Issues & Feature Requests**: [GitHub Issues](https://github.com/...)
-- **MOPS Official**: https://mops.twse.com.tw
+- **議題與功能請求**：[GitHub Issues](https://github.com/...)
+- **MOPS 官方**：https://mops.twse.com.tw
