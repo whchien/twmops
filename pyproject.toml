@@ -1,11 +1,11 @@
 [project]
 name = "twmops"
-version = "0.1.0"
+version = "0.1.1"
 description = "Python client for Taiwan MOPS (公開資訊觀測站) financial data"
 readme = "README.md"
 authors = [{name = "Will Chien", email = "locriginal@gmail.com"}]
 license = {text = "MIT"}
-keywords = ["taiwan", "mops", "financial", "twse", "xbrl"]
+keywords = ["taiwan", "mops", "financial", "twse", "finance", "investment"]
 requires-python = ">=3.10"
 dependencies = [
     "httpx>=0.28.1",
@@ -29,10 +29,10 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/willchien/tw-mops"
-Repository = "https://github.com/willchien/tw-mops.git"
-Issues = "https://github.com/willchien/tw-mops/issues"
-Changelog = "https://github.com/willchien/tw-mops/releases"
+Homepage = "https://github.com/whchien/tw-mops"
+Repository = "https://github.com/whchien/tw-mops.git"
+Issues = "https://github.com/whchien/tw-mops/issues"
+Changelog = "https://github.com/whchien/tw-mops/releases"
 
 [project.optional-dependencies]
 xbrl = ["arelle-release>=2.0.0"]
